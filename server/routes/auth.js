@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const users = require('../models/user');
 const characters = require('../models/character');
+const tribeMemberships = require('../models/tribeMembership');
 
 const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,20}$/;
 
@@ -22,7 +23,10 @@ router.post('/login', (req, res) => {
   req.session.userId = user.id;
 
   const character = characters.getByUserId(user.id);
-  res.redirect(character ? '/game' : '/characters/new');
+  if (!character) return res.redirect('/characters/new');
+
+  const membership = tribeMemberships.getByCharacterId(character.id);
+  res.redirect(membership ? '/game' : '/join-tribe');
 });
 
 router.post('/logout', (req, res) => {

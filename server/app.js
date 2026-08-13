@@ -3,6 +3,7 @@ const express = require('express');
 const sessionMiddleware = require('./middleware/session');
 const authRoutes = require('./routes/auth');
 const characterRoutes = require('./routes/characters');
+const tribeRoutes = require('./routes/tribes');
 const gameRoutes = require('./routes/game');
 
 const app = express();
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 
 app.use(authRoutes);
 app.use(characterRoutes);
+app.use(tribeRoutes);
 app.use(gameRoutes);
 
 module.exports = app;

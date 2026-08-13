@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/head', { title: 'Join a Tribe' }) %></head>
+<body>
+  <main class="wizard">
+    <div class="step-indicator">
+      <span class="step done">1 &middot; Callsign</span>
+      <span class="step done">2 &middot; Character</span>
+      <span class="step current">3 &middot; Tribe</span>
+    </div>
+
+    <h1>Who do you run with?</h1>
+    <p class="hint">Pick a tribe to join. Nobody founds their own — everyone starts somewhere.</p>
+    <% if (error) { %><p class="form-error"><%= error %></p><% } %>
+
+    <form method="POST" action="/join-tribe" class="stack">
+      <div class="card-grid tribe-grid">
+        <% tribes.forEach(function(tribe) { %>
+          <label class="option-card">
+            <input type="radio" name="tribe_key" value="<%= tribe.key %>" required>
+            <span class="option-card-title"><%= tribe.name %></span>
+            <span class="option-card-body"><%= tribe.ideology_text %></span>
+          </label>
+        <% }); %>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Join Tribe</button>
+    </form>
+  </main>
+</body>
+</html>

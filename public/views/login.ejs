@@ -1,22 +1,21 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Survive — Sign In</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
+<html lang="en">
+<head><%- include('partials/head', { title: 'Sign In' }) %></head>
 <body class="auth-page">
-  <div class="auth-box">
-    <h1>Survive</h1>
+  <main class="auth-card">
+    <p class="eyebrow">Prototype &middot; Season Zero</p>
+    <h1 class="display">Survive</h1>
     <p class="tagline">The world ended. Whoever's left has to make their own rules.</p>
     <% if (error) { %>
-      <p class="error"><%= error %></p>
+      <p class="form-error"><%= error %></p>
     <% } %>
-    <form method="POST" action="/login">
-      <label for="username">Callsign</label>
-      <input type="text" id="username" name="username" maxlength="20" required autofocus>
-      <button type="submit">Enter</button>
+    <form method="POST" action="/login" class="stack">
+      <div class="field">
+        <label for="username">Callsign</label>
+        <input type="text" id="username" name="username" maxlength="20" required autofocus placeholder="e.g. Ashline">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Enter the ruins</button>
     </form>
-  </div>
+  </main>
 </body>
 </html>

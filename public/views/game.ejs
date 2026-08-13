@@ -1,27 +1,47 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Survive — <%= character.name %></title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
+<html lang="en">
+<head><%- include('partials/head', { title: character.name }) %></head>
 <body>
-  <div class="game-layout">
-    <aside class="sheet">
-      <h2><%= character.name %></h2>
+  <div class="app-shell">
+    <aside class="sheet-panel">
+      <div class="sheet-header">
+        <h2><%= character.name %></h2>
+        <span class="badge badge-tribe"><%= membership.tribe_name %></span>
+      </div>
+      <p class="background-tag"><%= background.name %></p>
       <p class="appearance"><%= character.appearance_text %></p>
-      <dl class="stats">
-        <div><dt>Strength</dt><dd><%= character.stat_strength %></dd></div>
-        <div><dt>Quickness</dt><dd><%= character.stat_quickness %></dd></div>
-        <div><dt>Wits</dt><dd><%= character.stat_wits %></dd></div>
-        <div><dt>Charm</dt><dd><%= character.stat_charm %></dd></div>
-        <div><dt>Grit</dt><dd><%= character.stat_grit %></dd></div>
+
+      <div class="vitals">
+        <div class="vital">
+          <span class="vital-label">HP</span>
+          <span class="vital-value"><%= character.hp %></span>
+        </div>
+        <div class="vital">
+          <span class="vital-label">Energy</span>
+          <span class="vital-value"><%= character.energy %></span>
+        </div>
+      </div>
+
+      <h3 class="sheet-subheading">Skills</h3>
+      <ul class="skill-list">
+        <% skills.forEach(function(skill) { %>
+          <li><span><%= skill.name %></span><span class="skill-level"><%= skill.level %></span></li>
+        <% }); %>
+      </ul>
+
+      <h3 class="sheet-subheading">Stats</h3>
+      <dl class="stats-grid">
+        <div><dt>STR</dt><dd><%= character.stat_strength %></dd></div>
+        <div><dt>QCK</dt><dd><%= character.stat_quickness %></dd></div>
+        <div><dt>WIT</dt><dd><%= character.stat_wits %></dd></div>
+        <div><dt>CHM</dt><dd><%= character.stat_charm %></dd></div>
+        <div><dt>GRT</dt><dd><%= character.stat_grit %></dd></div>
       </dl>
-      <p>HP: <%= character.hp %> &nbsp; Energy: <%= character.energy %></p>
-      <form method="POST" action="/logout"><button type="submit">Log out</button></form>
+
+      <form method="POST" action="/logout"><button type="submit" class="btn btn-ghost btn-block">Log out</button></form>
     </aside>
 
-    <main class="scene">
+    <main class="scene-panel">
       <h1><%= territory.name %></h1>
       <p class="description"><%= territory.description %></p>
 
@@ -37,10 +57,10 @@
         <% }); %>
       </div>
 
-      <form id="chat-form">
+      <form id="chat-form" class="chat-form">
         <input type="text" id="chat-input" autocomplete="off" maxlength="500"
                placeholder="Say something, or /me to act it out...">
-        <button type="submit">Send</button>
+        <button type="submit" class="btn btn-primary">Send</button>
       </form>
     </main>
   </div>
