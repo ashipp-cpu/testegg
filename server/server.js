@@ -6,11 +6,13 @@ const app = require('./app');
 const sessionMiddleware = require('./middleware/session');
 const seed = require('./db/seed');
 const registerChatHandlers = require('./sockets/chat');
+const { setIO } = require('./sockets/ioRegistry');
 
 seed();
 
 const server = http.createServer(app);
 const io = new Server(server);
+setIO(io);
 
 io.use(sharedSession(sessionMiddleware, { autoSave: true }));
 registerChatHandlers(io);

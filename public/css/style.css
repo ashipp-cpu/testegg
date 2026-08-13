@@ -222,6 +222,98 @@ input[type="text"]:focus, textarea:focus {
 .chat-form { display: flex; gap: 0.6rem; }
 .chat-form input { flex: 1; }
 
+/* Top nav (game / tribe pages) */
+.top-nav { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
+.top-nav-link {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 0.4em 0.9em;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.top-nav-link.active { color: var(--text); border-color: var(--accent); background: var(--accent-soft); }
+.top-nav-link:hover { color: var(--text); }
+
+/* Tribe panel */
+.btn-small { padding: 0.5em 0.9em; font-size: 0.85rem; }
+
+.tribe-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+.tribe-header { margin-bottom: 1.5rem; }
+.tribe-header h1 { margin-bottom: 0.1em; }
+
+.tribe-grid-layout { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+.tribe-col-main, .tribe-col-side { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.4rem;
+}
+.panel-header { margin-bottom: 0.8rem; }
+.panel-header h2 { font-size: 1.1rem; margin: 0; }
+
+.seat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.8rem; }
+.seat-card {
+  background: var(--panel-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.9em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  align-items: flex-start;
+}
+.seat-role { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+.seat-name { font-family: var(--font-display); font-size: 1.05rem; text-transform: uppercase; }
+.seat-vacant { color: var(--text-muted); font-style: italic; text-transform: none; font-family: var(--font-body); }
+
+.list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8em;
+  padding: 0.55em 0;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.list-row:last-of-type { border-bottom: none; }
+.list-row-actions { display: flex; align-items: center; gap: 0.6em; }
+.vote-count { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; }
+
+.stance-pill {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25em 0.7em;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+}
+.stance-ally { color: #7fbf7a; border-color: #7fbf7a; }
+.stance-rival { color: var(--accent); border-color: var(--accent); }
+.stance-war { color: var(--danger); border-color: var(--danger); }
+
+.form-row { display: flex; gap: 0.5em; flex-wrap: wrap; align-items: center; }
+.form-row select {
+  background: #100d0b;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5em 0.7em;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+}
+
+.announcement { padding: 0.6em 0; border-bottom: 1px solid var(--border); }
+.announcement:last-child { border-bottom: none; }
+.announcement p { margin: 0 0 0.2em; }
+
+.news-item { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.5em; padding-left: 0.8em; border-left: 2px solid var(--border-strong); }
+
+.policy-text { color: var(--text-muted); font-style: italic; }
+
 /* Desktop layout */
 @media (min-width: 900px) {
   .app-shell { grid-template-columns: 320px 1fr; }
@@ -235,6 +327,8 @@ input[type="text"]:focus, textarea:focus {
   }
   .scene-panel { height: 100vh; }
   .chat-log { max-height: none; }
+
+  .tribe-grid-layout { grid-template-columns: 1.4fr 1fr; align-items: start; }
 }
 
 @media (max-width: 480px) {

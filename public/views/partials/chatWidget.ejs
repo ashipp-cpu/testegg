@@ -1,0 +1,9 @@
+<div id="chat-log" class="chat-log">
+  <% history.forEach(function(msg) { %>
+    <%- include('chatLine', { msg: msg }) %>
+  <% }); %>
+</div>
+<form id="chat-form" class="chat-form" data-channel="<%= channel %>">
+  <input type="text" id="chat-input" autocomplete="off" maxlength="500" placeholder="<%= placeholder %>">
+  <button type="submit" class="btn btn-primary">Send</button>
+</form>

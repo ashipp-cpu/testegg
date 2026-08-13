@@ -20,4 +20,15 @@ function recent(channel, scopeId, limit = 30) {
   return recentForScopeStmt.all(channel, scopeId, limit).reverse();
 }
 
-module.exports = { create, recent };
+function postSystem(channel, scopeId, body) {
+  return create({
+    channel,
+    scope_id: scopeId,
+    sender_character_id: null,
+    sender_name: 'System',
+    body,
+    type: 'system',
+  });
+}
+
+module.exports = { create, recent, postSystem };

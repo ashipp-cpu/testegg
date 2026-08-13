@@ -4,16 +4,18 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
--- A physical place characters stand in. Also the unit tribes will later
--- claim as territory (Phase 3) — parent_territory_id is reserved now so
--- sub-locations can be added without a breaking migration.
+-- A physical place characters stand in, and the unit tribes claim as
+-- territory. parent_territory_id is reserved so sub-locations can be
+-- added without a breaking migration. controlling_tribe_id is null
+-- while unclaimed.
 CREATE TABLE IF NOT EXISTS territories (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   key TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   description TEXT NOT NULL,
   parent_territory_id INTEGER REFERENCES territories(id),
-  connections TEXT NOT NULL DEFAULT '[]'
+  connections TEXT NOT NULL DEFAULT '[]',
+  controlling_tribe_id INTEGER REFERENCES tribes(id)
 );
 
 CREATE TABLE IF NOT EXISTS skills (
@@ -68,17 +70,72 @@ CREATE TABLE IF NOT EXISTS tribes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   key TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
-  ideology_text TEXT NOT NULL
+  ideology_text TEXT NOT NULL,
+  policy_text TEXT NOT NULL DEFAULT ''
 );
 
 -- Join table (not columns on characters) so membership history and
 -- future non-exclusive relationships stay possible. UNIQUE on
--- character_id enforces one tribe at a time for now.
+-- character_id enforces one tribe at a time for now. office is a fixed
+-- enum ('member'|'congress'|'leader') rather than a configurable
+-- per-tribe rank table, since offices are standardised across all
+-- tribes now that founding (and custom ranks) is gone — see
+-- server/game/permissions.js for what each office can do.
 CREATE TABLE IF NOT EXISTS tribe_memberships (
   character_id INTEGER NOT NULL UNIQUE REFERENCES characters(id),
   tribe_id INTEGER NOT NULL REFERENCES tribes(id),
   office TEXT NOT NULL DEFAULT 'member',
   joined_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- An election fills a vacant Leader/Congress seat, or (when
+-- target_character_id is set) is a recall vote against a sitting
+-- officer. Resolved synchronously as votes come in — see
+-- server/game/elections.js — so no scheduler/cron is needed.
+CREATE TABLE IF NOT EXISTS tribe_elections (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tribe_id INTEGER NOT NULL REFERENCES tribes(id),
+  office TEXT NOT NULL, -- 'leader' | 'congress'
+  seat_count INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'open', -- 'open' | 'closed'
+  target_character_id INTEGER REFERENCES characters(id),
+  opened_at TEXT NOT NULL DEFAULT (datetime('now')),
+  closed_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS tribe_election_candidates (
+  election_id INTEGER NOT NULL REFERENCES tribe_elections(id),
+  character_id INTEGER NOT NULL REFERENCES characters(id),
+  declared_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (election_id, character_id)
+);
+
+-- For a recall election, candidate_character_id is always the target —
+-- a row here is a "yes" vote to recall them. Deleting a row retracts it.
+CREATE TABLE IF NOT EXISTS tribe_votes (
+  election_id INTEGER NOT NULL REFERENCES tribe_elections(id),
+  voter_character_id INTEGER NOT NULL REFERENCES characters(id),
+  candidate_character_id INTEGER NOT NULL REFERENCES characters(id),
+  cast_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (election_id, voter_character_id, candidate_character_id)
+);
+
+-- One-directional stance this tribe holds toward another (not a mutual
+-- treaty — full bilateral diplomacy negotiation is a later phase).
+CREATE TABLE IF NOT EXISTS tribe_diplomacy_stances (
+  tribe_id INTEGER NOT NULL REFERENCES tribes(id),
+  other_tribe_id INTEGER NOT NULL REFERENCES tribes(id),
+  stance TEXT NOT NULL, -- 'ally' | 'rival' | 'war'
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (tribe_id, other_tribe_id)
+);
+
+CREATE TABLE IF NOT EXISTS tribe_announcements (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tribe_id INTEGER NOT NULL REFERENCES tribes(id),
+  author_character_id INTEGER NOT NULL REFERENCES characters(id),
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 -- sender_name is denormalized so history renders without a join and so

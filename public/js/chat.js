@@ -2,6 +2,7 @@ const socket = io();
 const log = document.getElementById('chat-log');
 const form = document.getElementById('chat-form');
 const input = document.getElementById('chat-input');
+const channel = form.dataset.channel || 'local';
 
 function appendMessage(msg) {
   const p = document.createElement('p');
@@ -17,13 +18,15 @@ function appendMessage(msg) {
   log.scrollTop = log.scrollHeight;
 }
 
-socket.on('chat:message', appendMessage);
+socket.on('chat:message', (msg) => {
+  if (msg.channel === channel) appendMessage(msg);
+});
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   const value = input.value.trim();
   if (!value) return;
-  socket.emit('chat:send', value);
+  socket.emit('chat:send', { channel, body: value });
   input.value = '';
 });
 
