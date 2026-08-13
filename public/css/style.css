@@ -1,0 +1,79 @@
+:root {
+  color-scheme: dark;
+  --bg: #12100e;
+  --panel: #1b1815;
+  --border: #3a332c;
+  --text: #d8d0c4;
+  --muted: #8a8074;
+  --accent: #b5482e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Courier New', Consolas, monospace;
+}
+
+h1, h2 { font-weight: normal; letter-spacing: 0.05em; text-transform: uppercase; }
+
+button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.5em 1em;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button:hover { filter: brightness(1.1); }
+
+input, textarea {
+  background: #0e0c0a;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4em;
+  font-family: inherit;
+  width: 100%;
+}
+
+label {
+  display: block;
+  margin-top: 1em;
+  margin-bottom: 0.25em;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 0.8em;
+}
+
+.auth-page { display: flex; align-items: center; justify-content: center; height: 100vh; }
+.auth-box, .page { max-width: 480px; margin: 3em auto; padding: 2em; background: var(--panel); border: 1px solid var(--border); }
+.tagline { color: var(--muted); }
+.error { color: var(--accent); }
+.hint { color: var(--muted); font-size: 0.85em; margin: 0; }
+
+fieldset { border: 1px solid var(--border); margin-top: 1em; }
+legend { text-transform: uppercase; font-size: 0.85em; color: var(--muted); }
+
+.stat-row { display: flex; align-items: center; justify-content: space-between; margin-top: 0.5em; }
+.stat-row label { margin: 0; text-transform: capitalize; }
+.stat-row input { width: 5em; }
+
+.game-layout { display: flex; height: 100vh; }
+.sheet { width: 260px; padding: 1.5em; background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; }
+.stats { margin: 1em 0; }
+.stats div { display: flex; justify-content: space-between; padding: 0.15em 0; }
+.appearance { color: var(--muted); font-size: 0.9em; }
+
+.scene { flex: 1; display: flex; flex-direction: column; padding: 1.5em; min-width: 0; }
+.description { color: var(--muted); }
+
+.chat-log { flex: 1; overflow-y: auto; border: 1px solid var(--border); padding: 1em; background: #0e0c0a; margin-bottom: 1em; }
+.chat-line { margin: 0 0 0.4em; }
+.chat-emote { color: var(--accent); font-style: italic; }
+.sender { color: var(--muted); font-weight: bold; }
+
+#chat-form { display: flex; gap: 0.5em; }
+#chat-form input { flex: 1; }

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Survive — <%= character.name %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="game-layout">
+    <aside class="sheet">
+      <h2><%= character.name %></h2>
+      <p class="appearance"><%= character.appearance_text %></p>
+      <dl class="stats">
+        <div><dt>Strength</dt><dd><%= character.stat_strength %></dd></div>
+        <div><dt>Quickness</dt><dd><%= character.stat_quickness %></dd></div>
+        <div><dt>Wits</dt><dd><%= character.stat_wits %></dd></div>
+        <div><dt>Charm</dt><dd><%= character.stat_charm %></dd></div>
+        <div><dt>Grit</dt><dd><%= character.stat_grit %></dd></div>
+      </dl>
+      <p>HP: <%= character.hp %> &nbsp; Energy: <%= character.energy %></p>
+      <form method="POST" action="/logout"><button type="submit">Log out</button></form>
+    </aside>
+
+    <main class="scene">
+      <h1><%= territory.name %></h1>
+      <p class="description"><%= territory.description %></p>
+
+      <div id="chat-log" class="chat-log">
+        <% history.forEach(function(msg) { %>
+          <p class="chat-line chat-<%= msg.type %>">
+            <% if (msg.type === 'emote') { %>
+              <span class="sender"><%= msg.sender_name %></span> <%= msg.body %>
+            <% } else { %>
+              <span class="sender"><%= msg.sender_name %>:</span> <%= msg.body %>
+            <% } %>
+          </p>
+        <% }); %>
+      </div>
+
+      <form id="chat-form">
+        <input type="text" id="chat-input" autocomplete="off" maxlength="500"
+               placeholder="Say something, or /me to act it out...">
+        <button type="submit">Send</button>
+      </form>
+    </main>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/chat.js"></script>
+</body>
+</html>

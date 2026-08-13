@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Survive — New Character</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="page">
+    <h1>Who were you, before?</h1>
+    <% if (error) { %><p class="error"><%= error %></p><% } %>
+    <form method="POST" action="/characters" id="character-form">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" value="<%= form.name %>" maxlength="30" required>
+
+      <label for="appearance_text">Appearance</label>
+      <textarea id="appearance_text" name="appearance_text" rows="3" required><%= form.appearance_text %></textarea>
+
+      <label for="origin_story">Where did you come from, and how did you survive this long?</label>
+      <textarea id="origin_story" name="origin_story" rows="4" required><%= form.origin_story %></textarea>
+
+      <fieldset>
+        <legend>Stats — <span id="points-remaining"><%= pointPool %></span> points left of <%= pointPool %></legend>
+        <p class="hint">Each stat must be between <%= minStat %> and <%= maxStat %>.</p>
+        <% statKeys.forEach(function(key) { %>
+          <div class="stat-row">
+            <label for="stat_<%= key %>"><%= key %></label>
+            <input
+              type="number"
+              class="stat-input"
+              id="stat_<%= key %>"
+              name="stat_<%= key %>"
+              min="<%= minStat %>"
+              max="<%= maxStat %>"
+              value="<%= form.stats[key] %>"
+              data-pool="<%= pointPool %>"
+            >
+          </div>
+        <% }); %>
+      </fieldset>
+
+      <button type="submit">Begin</button>
+    </form>
+  </div>
+  <script src="/js/characterCreate.js"></script>
+</body>
+</html>
