@@ -39,6 +39,22 @@ Open the same URL in a few browser windows (or normal + incognito) with
 different callsigns, join the same tribe, and use `/tribe` to run
 elections, vote, and claim territory together.
 
+## UI architecture
+
+The Camp (`/game`) and Tribe (`/tribe`) screens share one persistent shell
+(`public/views/shell.ejs`) — the sidebar, top HUD bar, and the Socket.io
+connection load once and never reload while you're playing. Navigating
+between them, and every action inside the Tribe panel (voting, nominating,
+claiming territory, posting an announcement...), is handled by
+[htmx](https://htmx.org): a click or form submit fetches just the updated
+panel fragment and swaps it into `#panel-root` in place, instead of doing a
+full page navigation. Server routes render the same view twice — a full
+page (`GET /game`, `GET /tribe`) for a fresh load/bookmark/refresh, and a
+bare fragment (`GET /game/panel`, `GET /tribe/panel`, and the `HX-Request`
+branch of every `POST /tribe/...` handler) for htmx swaps. htmx is vendored
+locally (`node_modules/htmx.org`, served at `/vendor/htmx`), not loaded
+from a CDN.
+
 ## Notes on this phase
 
 - One character per account. SQLite database lives at `data/game.sqlite`

@@ -1,0 +1,37 @@
+<div data-panel="camp" class="panel-stack">
+  <section class="panel">
+    <div class="panel-header"><h2><%= territory.name %></h2></div>
+    <p class="description"><%= territory.description %></p>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header"><h2>Character</h2></div>
+    <p class="background-tag"><%= background.name %></p>
+    <p class="appearance"><%= character.appearance_text %></p>
+
+    <h3 class="sheet-subheading">Skills</h3>
+    <ul class="skill-list">
+      <% skills.forEach(function(skill) { %>
+        <li><span><%= skill.name %></span><span class="skill-level"><%= skill.level %></span></li>
+      <% }); %>
+    </ul>
+
+    <h3 class="sheet-subheading">Stats</h3>
+    <dl class="stats-grid">
+      <div><dt>STR</dt><dd><%= character.stat_strength %></dd></div>
+      <div><dt>QCK</dt><dd><%= character.stat_quickness %></dd></div>
+      <div><dt>WIT</dt><dd><%= character.stat_wits %></dd></div>
+      <div><dt>CHM</dt><dd><%= character.stat_charm %></dd></div>
+      <div><dt>GRT</dt><dd><%= character.stat_grit %></dd></div>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header"><h2>Local Chat</h2></div>
+    <%- include('../partials/chatWidget', {
+      history: history,
+      channel: 'local',
+      placeholder: "Say something, or /me to act it out..."
+    }) %>
+  </section>
+</div>

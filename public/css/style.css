@@ -162,10 +162,131 @@ input[type="text"]:focus, textarea:focus {
 }
 .option-card:has(input:checked) .tag { border-color: var(--accent); color: var(--text); }
 
-/* App shell (main game view) */
-.app-shell { display: grid; grid-template-columns: 1fr; min-height: 100vh; }
-.sheet-panel { background: var(--panel); border-bottom: 1px solid var(--border); padding: 1.5rem; }
-.sheet-header { display: flex; align-items: center; justify-content: space-between; gap: 0.6em; flex-wrap: wrap; }
+/* Game shell — persistent chrome around whichever panel htmx has loaded */
+.game-body { overflow-x: hidden; }
+
+.app-frame { display: flex; min-height: 100vh; }
+
+.side-nav {
+  display: none;
+  flex-direction: column;
+  width: 216px;
+  flex-shrink: 0;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 1.25rem 0.85rem;
+  gap: 0.25rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.side-nav-brand {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-size: 1.1rem;
+  padding: 0 0.6rem 1.2rem;
+}
+.side-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.65em 0.7em;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.side-nav-link svg { width: 19px; height: 19px; flex-shrink: 0; }
+.side-nav-link:hover { background: var(--panel-elevated); color: var(--text); }
+.side-nav-link.active { background: var(--accent-soft); color: var(--text); box-shadow: inset 2px 0 0 var(--accent); }
+.side-nav-link.disabled { cursor: default; opacity: 0.5; }
+.side-nav-link.disabled:hover { background: none; color: var(--text-muted); }
+
+.soon-tag {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--border-strong);
+  padding: 0.15em 0.5em;
+  border-radius: 999px;
+}
+.soon-tag svg { width: 11px; height: 11px; }
+
+.app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 100vh; }
+
+.hud-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.25rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.hud-identity { display: flex; align-items: center; gap: 0.6em; }
+.hud-name { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.03em; }
+.hud-stats { display: flex; gap: 0.6rem; margin-left: auto; }
+.hud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  background: var(--panel-elevated);
+  border: 1px solid var(--border);
+  padding: 0.35em 0.7em;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+}
+.hud-pill svg { width: 14px; height: 14px; }
+.hud-hp svg { color: var(--danger); }
+.hud-energy svg { color: #e8c34a; }
+
+#panel-root { flex: 1; padding: 1.25rem; transition: opacity 130ms ease; }
+#panel-root.htmx-swapping { opacity: 0; }
+
+.panel-stack { display: flex; flex-direction: column; gap: 1.25rem; max-width: 760px; margin: 0 auto; }
+
+.bottom-nav {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  z-index: 10;
+}
+.bottom-nav-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2em;
+  padding: 0.6em 0;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.bottom-nav-link svg { width: 20px; height: 20px; }
+.bottom-nav-link.active { color: var(--accent); }
+.bottom-nav-link.disabled { opacity: 0.4; }
+
 .badge {
   font-size: 0.72rem;
   text-transform: uppercase;
@@ -186,11 +307,6 @@ input[type="text"]:focus, textarea:focus {
 }
 .appearance { color: var(--text-muted); font-size: 0.9rem; }
 
-.vitals { display: flex; gap: 1rem; margin: 1rem 0; }
-.vital { flex: 1; background: var(--panel-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.7em; text-align: center; }
-.vital-label { display: block; font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; }
-.vital-value { font-family: var(--font-display); font-size: 1.4rem; }
-
 .sheet-subheading { font-size: 0.8rem; letter-spacing: 0.08em; color: var(--text-muted); margin-top: 1.4em; }
 .skill-list { list-style: none; margin: 0.5em 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.1em; }
 .skill-list li { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 0.4em 0; border-bottom: 1px solid var(--border); }
@@ -201,13 +317,11 @@ input[type="text"]:focus, textarea:focus {
 .stats-grid dt { font-size: 0.65rem; color: var(--text-muted); }
 .stats-grid dd { margin: 0; font-family: var(--font-display); font-size: 1.1rem; }
 
-.scene-panel { padding: 1.5rem; display: flex; flex-direction: column; min-width: 0; }
 .description { color: var(--text-muted); }
 
 .chat-log {
-  flex: 1;
-  min-height: 260px;
-  max-height: 50vh;
+  min-height: 220px;
+  max-height: 42vh;
   overflow-y: auto;
   background: #100d0b;
   border: 1px solid var(--border);
@@ -217,34 +331,19 @@ input[type="text"]:focus, textarea:focus {
 }
 .chat-line { margin: 0 0 0.5em; font-size: 0.92rem; }
 .chat-emote { color: var(--accent); font-style: italic; }
+.chat-system { color: var(--text-muted); font-size: 0.85rem; font-style: italic; }
 .sender { color: var(--text-muted); font-weight: 600; }
 
 .chat-form { display: flex; gap: 0.6rem; }
 .chat-form input { flex: 1; }
 
-/* Top nav (game / tribe pages) */
-.top-nav { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
-.top-nav-link {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  text-decoration: none;
-  padding: 0.4em 0.9em;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-}
-.top-nav-link.active { color: var(--text); border-color: var(--accent); background: var(--accent-soft); }
-.top-nav-link:hover { color: var(--text); }
-
 /* Tribe panel */
 .btn-small { padding: 0.5em 0.9em; font-size: 0.85rem; }
 
-.tribe-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
 .tribe-header { margin-bottom: 1.5rem; }
 .tribe-header h1 { margin-bottom: 0.1em; }
 
-.tribe-grid-layout { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+.tribe-grid-layout { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
 .tribe-col-main, .tribe-col-side { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
 
 .panel {
@@ -252,6 +351,7 @@ input[type="text"]:focus, textarea:focus {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.4rem;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
 }
 .panel-header { margin-bottom: 0.8rem; }
 .panel-header h2 { font-size: 1.1rem; margin: 0; }
@@ -316,17 +416,10 @@ input[type="text"]:focus, textarea:focus {
 
 /* Desktop layout */
 @media (min-width: 900px) {
-  .app-shell { grid-template-columns: 320px 1fr; }
-  .sheet-panel {
-    border-bottom: none;
-    border-right: 1px solid var(--border);
-    height: 100vh;
-    overflow-y: auto;
-    position: sticky;
-    top: 0;
-  }
-  .scene-panel { height: 100vh; }
-  .chat-log { max-height: none; }
+  .side-nav { display: flex; }
+  .bottom-nav { display: none; }
+  #panel-root { padding: 2rem; }
+  .chat-log { max-height: 46vh; }
 
   .tribe-grid-layout { grid-template-columns: 1.4fr 1fr; align-items: start; }
 }
@@ -335,4 +428,6 @@ input[type="text"]:focus, textarea:focus {
   .auth-card { padding: 2rem 1.5rem; }
   .display { font-size: 2.1rem; }
   .stats-grid { grid-template-columns: repeat(5, 1fr); font-size: 0.9em; }
+  #panel-root { padding-bottom: 4.5rem; }
+  .hud-identity .badge-tribe { display: none; }
 }

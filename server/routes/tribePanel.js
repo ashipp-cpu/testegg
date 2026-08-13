@@ -53,8 +53,7 @@ function buildRecallView(election, viewerCharacterId) {
   };
 }
 
-router.get('/tribe', (req, res) => {
-  const { character, membership } = req;
+function buildTribeViewModel(character, membership, error) {
   const tribe = tribes.getById(membership.tribe_id);
   const members = tribeMemberships.listByTribe(tribe.id);
 
@@ -66,8 +65,8 @@ router.get('/tribe', (req, res) => {
     })
     .filter(Boolean);
 
-  res.render('tribe', {
-    error: req.query.error || null,
+  return {
+    error: error || null,
     character,
     membership,
     tribe,
@@ -82,7 +81,36 @@ router.get('/tribe', (req, res) => {
     announcements: tribeAnnouncements.listForTribe(tribe.id),
     news: chatMessages.recent('tribe', tribe.id, 15).filter((m) => m.type === 'system'),
     chatHistory: chatMessages.recent('tribe', tribe.id, 30),
+  };
+}
+
+const isAjax = (req) => req.get('HX-Request') === 'true';
+
+// Every POST action re-renders the panel fragment in place (for htmx)
+// instead of redirecting, so the tribe panel reflects fresh state
+// without a full page reload. Falls back to a redirect if htmx's script
+// didn't load for some reason.
+function respond(req, res, error) {
+  if (isAjax(req)) {
+    return res.render('panels/tribe', buildTribeViewModel(req.character, req.membership, error));
+  }
+  res.redirect(error ? `/tribe?error=${encodeURIComponent(error)}` : '/tribe');
+}
+
+router.get('/tribe', (req, res) => {
+  const panelLocals = buildTribeViewModel(req.character, req.membership, req.query.error);
+  res.render('shell', {
+    title: panelLocals.tribe.name,
+    activePanel: 'tribe',
+    character: req.character,
+    membership: req.membership,
+    panelPartial: 'panels/tribe',
+    panelLocals,
   });
+});
+
+router.get('/tribe/panel', (req, res) => {
+  res.render('panels/tribe', buildTribeViewModel(req.character, req.membership, req.query.error));
 });
 
 router.post('/tribe/policy', (req, res) => {
@@ -90,7 +118,7 @@ router.post('/tribe/policy', (req, res) => {
   if (hasPermission(membership.office, 'set_policy')) {
     tribes.setPolicy(membership.tribe_id, (req.body.policy_text || '').trim().slice(0, 2000));
   }
-  res.redirect('/tribe');
+  respond(req, res);
 });
 
 router.post('/tribe/announcements', (req, res) => {
@@ -102,21 +130,21 @@ router.post('/tribe/announcements', (req, res) => {
       tribeNews.announce(membership.tribe_id, `${character.name} posted a new announcement.`);
     }
   }
-  res.redirect('/tribe');
+  respond(req, res);
 });
 
 router.post('/tribe/diplomacy', (req, res) => {
   const { character, membership } = req;
-  if (!hasPermission(membership.office, 'set_diplomacy_stance')) return res.redirect('/tribe');
+  if (!hasPermission(membership.office, 'set_diplomacy_stance')) return respond(req, res);
 
   const otherTribeId = parseInt(req.body.other_tribe_id, 10);
   const stance = req.body.stance;
   if (!otherTribeId || otherTribeId === membership.tribe_id || !VALID_STANCES.includes(stance)) {
-    return res.redirect('/tribe');
+    return respond(req, res);
   }
 
   const otherTribe = tribes.getById(otherTribeId);
-  if (!otherTribe) return res.redirect('/tribe');
+  if (!otherTribe) return respond(req, res);
 
   if (stance === 'neutral') {
     tribeDiplomacy.clearStance(membership.tribe_id, otherTribeId);
@@ -124,20 +152,20 @@ router.post('/tribe/diplomacy', (req, res) => {
     tribeDiplomacy.setStance(membership.tribe_id, otherTribeId, stance);
   }
   tribeNews.announce(membership.tribe_id, `${character.name} set relations with ${otherTribe.name} to ${stance}.`);
-  res.redirect('/tribe');
+  respond(req, res);
 });
 
 router.post('/tribe/elections/:office/nominate', (req, res) => {
   const { character, membership } = req;
   const office = req.params.office;
-  if (!['leader', 'congress'].includes(office)) return res.redirect('/tribe');
+  if (!['leader', 'congress'].includes(office)) return respond(req, res);
 
   try {
     elections.nominate(membership.tribe_id, office, character.id);
   } catch (err) {
-    return res.redirect(`/tribe?error=${encodeURIComponent(err.message)}`);
+    return respond(req, res, err.message);
   }
-  res.redirect('/tribe');
+  respond(req, res);
 });
 
 router.post('/tribe/elections/:electionId/vote', (req, res) => {
@@ -148,9 +176,9 @@ router.post('/tribe/elections/:electionId/vote', (req, res) => {
   try {
     elections.castVote(electionId, character.id, candidateId);
   } catch (err) {
-    return res.redirect(`/tribe?error=${encodeURIComponent(err.message)}`);
+    return respond(req, res, err.message);
   }
-  res.redirect('/tribe');
+  respond(req, res);
 });
 
 router.post('/tribe/elections/:electionId/retract', (req, res) => {
@@ -158,7 +186,7 @@ router.post('/tribe/elections/:electionId/retract', (req, res) => {
   const electionId = parseInt(req.params.electionId, 10);
   const candidateId = parseInt(req.body.candidate_character_id, 10);
   elections.retractVote(electionId, character.id, candidateId);
-  res.redirect('/tribe');
+  respond(req, res);
 });
 
 router.post('/tribe/recall', (req, res) => {
@@ -168,9 +196,9 @@ router.post('/tribe/recall', (req, res) => {
   try {
     elections.startRecall(membership.tribe_id, targetCharacterId, character.id);
   } catch (err) {
-    return res.redirect(`/tribe?error=${encodeURIComponent(err.message)}`);
+    return respond(req, res, err.message);
   }
-  res.redirect('/tribe');
+  respond(req, res);
 });
 
 router.post('/tribe/recall/:electionId/vote', (req, res) => {
@@ -180,16 +208,16 @@ router.post('/tribe/recall/:electionId/vote', (req, res) => {
   try {
     elections.castRecallVote(electionId, character.id);
   } catch (err) {
-    return res.redirect(`/tribe?error=${encodeURIComponent(err.message)}`);
+    return respond(req, res, err.message);
   }
-  res.redirect('/tribe');
+  respond(req, res);
 });
 
 router.post('/tribe/recall/:electionId/retract', (req, res) => {
   const { character } = req;
   const electionId = parseInt(req.params.electionId, 10);
   elections.retractRecallVote(electionId, character.id);
-  res.redirect('/tribe');
+  respond(req, res);
 });
 
 router.post('/tribe/territory/claim', (req, res) => {
@@ -198,7 +226,7 @@ router.post('/tribe/territory/claim', (req, res) => {
     const territory = territories.getById(character.location_id);
     territoryClaims.resolveClaim(character, membership.tribe_id, territory);
   }
-  res.redirect('/tribe');
+  respond(req, res);
 });
 
 module.exports = router;

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/head', { title: title }) %></head>
+<body class="game-body">
+  <div class="app-frame">
+    <aside class="side-nav">
+      <div class="side-nav-brand">Survive</div>
+
+      <a href="/game" hx-get="/game/panel" hx-target="#panel-root" hx-swap="innerHTML transition:true" hx-push-url="/game" data-panel="camp"
+         class="side-nav-link <%= activePanel === 'camp' ? 'active' : '' %>">
+        <%- icons.camp %><span>Camp</span>
+      </a>
+      <a href="/tribe" hx-get="/tribe/panel" hx-target="#panel-root" hx-swap="innerHTML transition:true" hx-push-url="/tribe" data-panel="tribe"
+         class="side-nav-link <%= activePanel === 'tribe' ? 'active' : '' %>">
+        <%- icons.tribe %><span>Tribe</span>
+      </a>
+      <span class="side-nav-link disabled">
+        <%- icons.quest %><span>Quests</span><span class="soon-tag"><%- icons.lock %>Soon</span>
+      </span>
+      <span class="side-nav-link disabled">
+        <%- icons.map %><span>Map</span><span class="soon-tag"><%- icons.lock %>Soon</span>
+      </span>
+    </aside>
+
+    <div class="app-main">
+      <header class="hud-bar">
+        <div class="hud-identity">
+          <span class="hud-name"><%= character.name %></span>
+          <span class="badge badge-tribe"><%= membership.tribe_name %></span>
+        </div>
+        <div class="hud-stats">
+          <span class="hud-pill hud-hp"><%- icons.hp %><%= character.hp %></span>
+          <span class="hud-pill hud-energy"><%- icons.energy %><%= character.energy %></span>
+        </div>
+        <form method="POST" action="/logout" class="hud-logout">
+          <button type="submit" class="btn btn-ghost btn-small"><%- icons.logout %><span>Log out</span></button>
+        </form>
+      </header>
+
+      <main id="panel-root" hx-target="this" hx-swap="innerHTML transition:true" hx-history-elt>
+        <%- include(panelPartial, panelLocals) %>
+      </main>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="/game" hx-get="/game/panel" hx-target="#panel-root" hx-swap="innerHTML transition:true" hx-push-url="/game" data-panel="camp"
+         class="bottom-nav-link <%= activePanel === 'camp' ? 'active' : '' %>"><%- icons.camp %><span>Camp</span></a>
+      <a href="/tribe" hx-get="/tribe/panel" hx-target="#panel-root" hx-swap="innerHTML transition:true" hx-push-url="/tribe" data-panel="tribe"
+         class="bottom-nav-link <%= activePanel === 'tribe' ? 'active' : '' %>"><%- icons.tribe %><span>Tribe</span></a>
+      <span class="bottom-nav-link disabled"><%- icons.quest %><span>Quests</span></span>
+      <span class="bottom-nav-link disabled"><%- icons.map %><span>Map</span></span>
+    </nav>
+  </div>
+
+  <script src="/vendor/htmx/htmx.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
