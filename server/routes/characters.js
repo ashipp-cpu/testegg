@@ -9,6 +9,7 @@ const characterSkills = require('../models/characterSkill');
 const { STARTING_TERRITORY_KEY } = require('../config');
 const { deriveVitals } = require('../game/stats');
 const { computeStats, computeSkillLevels } = require('../game/backgrounds');
+const activity = require('../game/activity');
 
 function defaultForm() {
   return { name: '', appearance_text: '', origin_story: '', background_key: '' };
@@ -76,6 +77,7 @@ router.post('/characters', requireAuth, (req, res) => {
   });
 
   characterSkills.createMany(character.id, computeSkillLevels(background, skills.list()));
+  activity.log(character.id, 'Emerged into the ruins.');
 
   res.redirect('/join-tribe');
 });

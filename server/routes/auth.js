@@ -20,6 +20,7 @@ router.post('/login', (req, res) => {
   }
 
   const user = users.findOrCreateByUsername(username);
+  users.updateLastLogin(user.id);
   req.session.userId = user.id;
 
   const character = characters.getByUserId(user.id);

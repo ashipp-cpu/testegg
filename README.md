@@ -39,6 +39,28 @@ Open the same URL in a few browser windows (or normal + incognito) with
 different callsigns, join the same tribe, and use `/tribe` to run
 elections, vote, and claim territory together.
 
+## Profiles
+
+Every character has a public profile at `/profile/:id` (or `/profile` for
+your own) — name, tribe affiliation, appearance/origin text, stats, skills,
+a "Recent Actions" feed, friends/enemies, last login time, and any earned
+achievements. Anyone can view anyone else's profile; character names
+throughout the app (tribe roster, friends/enemies lists) link to it.
+
+- **Recent Actions** is a real activity log, not decorative — it's
+  populated by `server/game/activity.js`, called from the same places
+  `tribeNews.announce()` is (joining a tribe, winning an election, being
+  recalled, claiming/losing territory), just phrased for the acting
+  character's own page.
+- **Friends/Enemies** are one-directional (your own read on another
+  character, mirroring how tribe alliance/rival stances work), set from
+  the "Relationship" section on someone else's profile.
+- **Achievements** are meta/community badges (Alpha Tester, Bug Hunter,
+  Idea Spark...) rather than anything earned through gameplay. There's no
+  admin role/UI yet, so they're granted from the command line:
+  `npm run grant-achievement -- <username> <achievement-key>` (run it with
+  no arguments to list valid keys).
+
 ## UI architecture
 
 The Camp (`/game`) and Tribe (`/tribe`) screens share one persistent shell

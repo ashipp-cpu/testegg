@@ -4,6 +4,7 @@ const requireAuth = require('../middleware/requireAuth');
 const characters = require('../models/character');
 const tribes = require('../models/tribe');
 const tribeMemberships = require('../models/tribeMembership');
+const activity = require('../game/activity');
 
 router.get('/join-tribe', requireAuth, (req, res) => {
   const character = characters.getByUserId(req.session.userId);
@@ -24,6 +25,7 @@ router.post('/join-tribe', requireAuth, (req, res) => {
   }
 
   tribeMemberships.create(character.id, tribe.id);
+  activity.log(character.id, `Joined the ${tribe.name}.`);
   res.redirect('/game');
 });
 

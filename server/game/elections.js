@@ -1,6 +1,8 @@
 const tribeElections = require('../models/tribeElection');
 const tribeMemberships = require('../models/tribeMembership');
+const tribes = require('../models/tribe');
 const tribeNews = require('./tribeNews');
+const activity = require('./activity');
 
 const CONGRESS_SEATS = 3;
 const CONGRESS_VOTES_PER_MEMBER = 3;
@@ -39,6 +41,7 @@ function nominate(tribeId, office, characterId) {
   }
 
   tribeElections.nominate(election.id, characterId);
+  activity.log(characterId, `Nominated for ${office === 'leader' ? 'Leader' : 'Congress'}.`);
   return tribeElections.getById(election.id);
 }
 
@@ -90,6 +93,7 @@ function resolveIfReady(election) {
     tribeElections.close(election.id);
     const winnerName = tribeElections.listCandidates(election.id).find((c) => c.character_id === winnerId)?.name;
     tribeNews.announce(election.tribe_id, `${winnerName} was elected Leader.`);
+    activity.log(winnerId, `Elected Leader of the ${tribes.getById(election.tribe_id).name}.`);
     return { resolved: true, office: 'leader', winners: [winnerId] };
   }
 
@@ -107,8 +111,10 @@ function resolveIfReady(election) {
   winners.forEach((winner) => tribeMemberships.setOffice(winner.character_id, 'congress'));
   tribeElections.close(election.id);
   if (winners.length > 0) {
+    const tribeName = tribes.getById(election.tribe_id).name;
     const names = winners.map((w) => w.name).join(', ');
     tribeNews.announce(election.tribe_id, `${names} joined the Congress.`);
+    winners.forEach((winner) => activity.log(winner.character_id, `Joined the Congress of the ${tribeName}.`));
   }
   return { resolved: true, office: 'congress', winners: winners.map((w) => w.character_id) };
 }
@@ -151,6 +157,7 @@ function resolveRecallIfReady(election) {
   tribeMemberships.setOffice(election.target_character_id, 'member');
   tribeElections.close(election.id);
   tribeNews.announce(election.tribe_id, `A recall vote removed a member from the ${election.office} office.`);
+  activity.log(election.target_character_id, `Recalled from the ${election.office} office.`);
   return { resolved: true };
 }
 

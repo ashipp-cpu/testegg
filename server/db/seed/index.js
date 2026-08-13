@@ -6,6 +6,7 @@ function seed() {
   seedSkills();
   seedBackgrounds();
   seedTribes();
+  seedAchievements();
 }
 
 function seedTerritory() {
@@ -117,6 +118,22 @@ function seedTribes() {
 
   const insertAll = db.transaction((rows) => rows.forEach((row) => insert.run(...row)));
   insertAll(tribes);
+}
+
+function seedAchievements() {
+  const { n } = db.prepare('SELECT COUNT(*) AS n FROM achievements').get();
+  if (n > 0) return;
+
+  const insert = db.prepare('INSERT INTO achievements (key, name, description) VALUES (?, ?, ?)');
+  const achievements = [
+    ['alpha-tester', 'Alpha Tester', 'Played during the earliest prototype phase, before things worked right.'],
+    ['beta-tester', 'Beta Tester', 'Helped stress-test the game ahead of a wider release.'],
+    ['bug-hunter', 'Bug Hunter', 'Reported a bug that got fixed.'],
+    ['idea-spark', 'Idea Spark', 'Suggested a feature that made it into the game.'],
+  ];
+
+  const insertAll = db.transaction((rows) => rows.forEach((row) => insert.run(...row)));
+  insertAll(achievements);
 }
 
 module.exports = seed;

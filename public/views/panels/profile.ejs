@@ -1,0 +1,121 @@
+<div data-panel="profile" class="tribe-grid-layout">
+  <div class="tribe-col-main">
+
+    <header class="tribe-header">
+      <h1><%= profileCharacter.name %></h1>
+      <p class="tagline">
+        <%= background.name %><% if (profileMembership) { %> &middot; <%= profileMembership.tribe_name %><% } %>
+      </p>
+      <p class="hint">
+        Last seen <%= profileUser.last_login_at ? (profileUser.last_login_at + ' UTC') : 'never' %>
+      </p>
+    </header>
+
+    <% if (!isSelf) { %>
+      <section class="panel">
+        <div class="panel-header"><h2>Relationship</h2></div>
+        <p class="hint">
+          Your read on <%= profileCharacter.name %>:
+          <strong><%= myRelation ? (myRelation.relation.charAt(0).toUpperCase() + myRelation.relation.slice(1)) : 'None' %></strong>
+        </p>
+        <div class="form-row">
+          <form method="POST" action="/profile/<%= profileCharacter.id %>/relationship" hx-post="/profile/<%= profileCharacter.id %>/relationship">
+            <input type="hidden" name="relation" value="friend">
+            <button type="submit" class="btn btn-ghost btn-small">Mark as Friend</button>
+          </form>
+          <form method="POST" action="/profile/<%= profileCharacter.id %>/relationship" hx-post="/profile/<%= profileCharacter.id %>/relationship">
+            <input type="hidden" name="relation" value="enemy">
+            <button type="submit" class="btn btn-ghost btn-small">Mark as Enemy</button>
+          </form>
+          <% if (myRelation) { %>
+            <form method="POST" action="/profile/<%= profileCharacter.id %>/relationship" hx-post="/profile/<%= profileCharacter.id %>/relationship">
+              <input type="hidden" name="relation" value="clear">
+              <button type="submit" class="btn btn-ghost btn-small">Clear</button>
+            </form>
+          <% } %>
+        </div>
+      </section>
+    <% } %>
+
+    <section class="panel">
+      <div class="panel-header"><h2>About</h2></div>
+      <p class="appearance"><%= profileCharacter.appearance_text %></p>
+      <p><%= profileCharacter.origin_story %></p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header"><h2>Skills</h2></div>
+      <ul class="skill-list">
+        <% skills.forEach(function (skill) { %>
+          <li><span><%= skill.name %></span><span class="skill-level"><%= skill.level %></span></li>
+        <% }); %>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header"><h2>Stats</h2></div>
+      <dl class="stats-grid">
+        <div><dt>STR</dt><dd><%= profileCharacter.stat_strength %></dd></div>
+        <div><dt>QCK</dt><dd><%= profileCharacter.stat_quickness %></dd></div>
+        <div><dt>WIT</dt><dd><%= profileCharacter.stat_wits %></dd></div>
+        <div><dt>CHM</dt><dd><%= profileCharacter.stat_charm %></dd></div>
+        <div><dt>GRT</dt><dd><%= profileCharacter.stat_grit %></dd></div>
+      </dl>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header"><h2>Friends</h2></div>
+      <% if (friends.length === 0) { %>
+        <p class="hint">No friends listed.</p>
+      <% } %>
+      <% friends.forEach(function (f) { %>
+        <div class="list-row">
+          <a class="profile-link" href="/profile/<%= f.other_character_id %>"
+             hx-get="/profile/<%= f.other_character_id %>/panel" hx-push-url="/profile/<%= f.other_character_id %>">
+            <%= f.other_character_name %>
+          </a>
+        </div>
+      <% }); %>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header"><h2>Enemies</h2></div>
+      <% if (enemies.length === 0) { %>
+        <p class="hint">No enemies listed.</p>
+      <% } %>
+      <% enemies.forEach(function (e) { %>
+        <div class="list-row">
+          <a class="profile-link" href="/profile/<%= e.other_character_id %>"
+             hx-get="/profile/<%= e.other_character_id %>/panel" hx-push-url="/profile/<%= e.other_character_id %>">
+            <%= e.other_character_name %>
+          </a>
+        </div>
+      <% }); %>
+    </section>
+  </div>
+
+  <div class="tribe-col-side">
+    <section class="panel">
+      <div class="panel-header"><h2>Recent Actions</h2></div>
+      <% if (activity.length === 0) { %>
+        <p class="hint">Nothing to show yet.</p>
+      <% } %>
+      <% activity.forEach(function (a) { %>
+        <p class="news-item"><%= a.body %></p>
+      <% }); %>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header"><h2>Achievements</h2></div>
+      <% if (earnedAchievements.length === 0) { %>
+        <p class="hint">No achievements earned yet.</p>
+      <% } %>
+      <% earnedAchievements.forEach(function (ach) { %>
+        <div class="list-row">
+          <span><%= ach.name %></span>
+          <span class="hint"><%= ach.description %></span>
+        </div>
+      <% }); %>
+    </section>
+  </div>
+</div>

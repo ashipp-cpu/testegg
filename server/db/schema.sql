@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT NOT NULL UNIQUE,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  last_login_at TEXT
 );
 
 -- A physical place characters stand in, and the unit tribes claim as
@@ -149,4 +150,42 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   body TEXT NOT NULL,
   type TEXT NOT NULL DEFAULT 'say',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- A personal "recent actions" log, populated alongside the tribe news
+-- feed at the same call sites (see server/game/activity.js) but phrased
+-- for the acting character's own profile rather than a tribe-wide feed.
+CREATE TABLE IF NOT EXISTS character_activity (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  character_id INTEGER NOT NULL REFERENCES characters(id),
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- One-directional character-to-character relationship (mirrors
+-- tribe_diplomacy_stances) — not a mutual/confirmed friendship, just
+-- this character's own public read on another.
+CREATE TABLE IF NOT EXISTS character_relationships (
+  character_id INTEGER NOT NULL REFERENCES characters(id),
+  other_character_id INTEGER NOT NULL REFERENCES characters(id),
+  relation TEXT NOT NULL, -- 'friend' | 'enemy'
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (character_id, other_character_id)
+);
+
+-- Catalog of meta/community badges (Alpha Tester, Bug Hunter...), not
+-- earned through gameplay — granted via server/scripts/grantAchievement.js
+-- until there's an admin role/UI to do it from the browser.
+CREATE TABLE IF NOT EXISTS achievements (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  key TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS character_achievements (
+  character_id INTEGER NOT NULL REFERENCES characters(id),
+  achievement_id INTEGER NOT NULL REFERENCES achievements(id),
+  awarded_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (character_id, achievement_id)
 );

@@ -6,7 +6,8 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
-    "dev": "nodemon server/server.js"
+    "dev": "nodemon server/server.js",
+    "grant-achievement": "node server/scripts/grantAchievement.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.3.0",

@@ -1,6 +1,7 @@
 const territories = require('../models/territory');
 const characterSkills = require('../models/characterSkill');
 const tribeNews = require('./tribeNews');
+const activity = require('./activity');
 
 const HOME_ADVANTAGE = 3;
 
@@ -21,6 +22,7 @@ function resolveClaim(character, tribeId, territory) {
   if (!territory.controlling_tribe_id) {
     territories.setControllingTribe(territory.id, tribeId);
     tribeNews.announce(tribeId, `${character.name} claimed ${territory.name} for the tribe.`);
+    activity.log(character.id, `Claimed ${territory.name} for the tribe.`);
     return { success: true, contested: false };
   }
 
@@ -39,11 +41,13 @@ function resolveClaim(character, tribeId, territory) {
       territory.controlling_tribe_id,
       `${territory.name} was lost to a rival tribe (${attackerScore} vs ${defenderScore}).`
     );
+    activity.log(character.id, `Seized ${territory.name} from a rival tribe.`);
   } else {
     tribeNews.announce(
       tribeId,
       `${character.name}'s attempt to take ${territory.name} failed (${attackerScore} vs ${defenderScore}).`
     );
+    activity.log(character.id, `Failed to take ${territory.name}.`);
   }
 
   return { success, contested: true, attackerScore, defenderScore };

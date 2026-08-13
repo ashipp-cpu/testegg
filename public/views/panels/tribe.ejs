@@ -208,7 +208,11 @@
       <div class="panel-header"><h2>Membership</h2></div>
       <% members.forEach(function (m) { %>
         <div class="list-row">
-          <span><%= m.name %> <span class="hint">— <%= m.background_name %></span></span>
+          <span>
+            <a class="profile-link" href="/profile/<%= m.character_id %>"
+               hx-get="/profile/<%= m.character_id %>/panel" hx-push-url="/profile/<%= m.character_id %>"><%= m.name %></a>
+            <span class="hint">— <%= m.background_name %></span>
+          </span>
           <span class="badge <%= m.office !== 'member' ? 'badge-tribe' : '' %>"><%= m.office %></span>
         </div>
       <% }); %>
