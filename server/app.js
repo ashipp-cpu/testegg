@@ -8,6 +8,7 @@ const tribeRoutes = require('./routes/tribes');
 const tribePanelRoutes = require('./routes/tribePanel');
 const gameRoutes = require('./routes/game');
 const profileRoutes = require('./routes/profile');
+const mapRoutes = require('./routes/map');
 
 const app = express();
 
@@ -30,5 +31,6 @@ app.use(tribeRoutes);
 app.use(tribePanelRoutes);
 app.use(gameRoutes);
 app.use(profileRoutes);
+app.use(mapRoutes);
 
 module.exports = app;

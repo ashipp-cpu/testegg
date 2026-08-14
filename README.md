@@ -61,6 +61,27 @@ throughout the app (tribe roster, friends/enemies lists) link to it.
   `npm run grant-achievement -- <username> <achievement-key>` (run it with
   no arguments to list valid keys).
 
+## Map
+
+`/map` shows an illustrated map of the city and surrounding area, with
+markers for every named location — pulled from *The Tribe* (1999 NZ TV
+series) as a fan project, using the real names as-is. Clicking a marker
+shows that location's sector, description, and controlling tribe (if
+any) in a detail card; your character's current location is highlighted
+and shown by default. A handful of locations are pre-seeded as already
+held by their lore-appropriate tribe (The Mall/Mallrats, Rail Yards/
+Locos, Casino/Demon Dogz, Eco Camp/Ecos, The Farm/Farm Girls, Docks/
+Gulls); the rest start unclaimed. Location descriptions are original
+text, not copied from any wiki.
+
+Locations are just `territories` rows with a `sector_label` and a
+`map_x`/`map_y` position (0–100 percent within the map's SVG viewBox) —
+adding a new one is a seed-data change, not a template change. There's
+no player movement between locations yet, so beyond The Undercroft
+(everyone's starting/only reachable location), the map is a browsable
+reference for now — travel and the territory-claim flow connecting to it
+are natural next steps.
+
 ## UI architecture
 
 The Camp (`/game`) and Tribe (`/tribe`) screens share one persistent shell
@@ -91,9 +112,8 @@ from a CDN.
   Recall works the same way in reverse.
 - Alliance/rival/war stances are one-directional (your tribe's own read
   on another) — mutual treaty negotiation is a later phase.
-- Only one territory exists so far (The Undercroft), and there's no
-  player movement between locations yet, so "contested" claiming is
-  currently only meaningful when a second tribe's Leader also happens to
-  be present — which, with a single starting location, is everyone.
+- There's no player movement between locations yet (see Map above), so
+  "contested" claiming is currently only meaningful at The Undercroft,
+  since that's the only place every character can actually be present.
 - Quests and full combat encounters are not implemented yet — see the
   phased build plan for what's next.

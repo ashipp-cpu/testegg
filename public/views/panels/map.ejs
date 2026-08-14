@@ -1,0 +1,98 @@
+<%
+  function px(pct, span) { return (pct / 100 * span).toFixed(0); }
+%>
+<div data-panel="map" class="map-layout">
+  <section class="panel map-canvas-wrap">
+    <div class="panel-header"><h2>The City &amp; Beyond</h2></div>
+    <p class="hint">Click a marker for details. Your current location is highlighted.</p>
+
+    <svg class="map-svg" viewBox="0 0 1000 700" role="img" aria-label="Map of the city and surrounding area">
+      <rect x="0" y="0" width="1000" height="700" fill="#100d0b" />
+
+      <!-- Water -->
+      <path d="M 560 700 L 560 480 Q 640 400 760 430 Q 900 460 1000 400 L 1000 700 Z" fill="#12333a" opacity="0.75" />
+
+      <!-- Forest -->
+      <g fill="#1c3324" opacity="0.8">
+        <rect x="0" y="260" width="260" height="320" rx="16" />
+        <circle cx="60" cy="300" r="22" /><circle cx="110" cy="330" r="26" /><circle cx="70" cy="370" r="20" />
+        <circle cx="150" cy="290" r="24" /><circle cx="190" cy="340" r="22" /><circle cx="130" cy="420" r="24" />
+        <circle cx="200" cy="440" r="20" /><circle cx="60" cy="460" r="22" /><circle cx="180" cy="500" r="22" />
+      </g>
+
+      <!-- Mountain -->
+      <polygon points="90,260 230,60 370,260" fill="#3a332c" />
+      <polygon points="190,150 230,60 270,150" fill="#4a3b2e" />
+
+      <!-- Farmland -->
+      <g stroke="#6b5a2e" stroke-width="4" opacity="0.7">
+        <line x1="100" y1="520" x2="400" y2="520" /><line x1="100" y1="545" x2="400" y2="545" />
+        <line x1="100" y1="570" x2="400" y2="570" /><line x1="100" y1="595" x2="400" y2="595" />
+        <line x1="100" y1="620" x2="400" y2="620" /><line x1="100" y1="645" x2="400" y2="645" />
+      </g>
+
+      <!-- City block cluster -->
+      <g fill="#211c18" stroke="#332a22" stroke-width="2">
+        <rect x="360" y="180" width="360" height="340" rx="6" fill="#1a1613" />
+        <rect x="390" y="220" width="90" height="70" /><rect x="500" y="210" width="70" height="60" />
+        <rect x="590" y="230" width="90" height="90" /><rect x="400" y="310" width="110" height="90" />
+        <rect x="530" y="320" width="80" height="70" /><rect x="620" y="330" width="60" height="100" />
+        <rect x="410" y="420" width="70" height="70" /><rect x="500" y="410" width="90" height="80" />
+      </g>
+
+      <!-- Liberty (separate settlement) -->
+      <g fill="#211c18" stroke="#332a22" stroke-width="2">
+        <rect x="800" y="120" width="140" height="110" rx="6" fill="#1a1613" />
+        <rect x="815" y="140" width="35" height="30" /><rect x="860" y="135" width="30" height="35" />
+        <rect x="900" y="150" width="30" height="40" /><rect x="820" y="185" width="40" height="30" />
+      </g>
+
+      <!-- Roads -->
+      <g stroke="#4a3b2e" stroke-width="4" fill="none" stroke-dasharray="2 10" stroke-linecap="round">
+        <path d="M 360 360 Q 550 250 800 175" />
+        <path d="M 360 400 Q 300 480 260 540" />
+        <path d="M 360 380 Q 250 380 160 330" />
+      </g>
+
+      <% locations.forEach(function (loc) {
+           var cx = px(loc.map_x, 1000);
+           var cy = px(loc.map_y, 700);
+           var isHere = loc.id === character.location_id;
+      %>
+        <g class="map-pin <%= isHere ? 'map-pin-here' : '' %>" data-location="<%= loc.key %>" tabindex="0">
+          <circle cx="<%= cx %>" cy="<%= cy %>" r="12" class="map-pin-ring" />
+          <circle cx="<%= cx %>" cy="<%= cy %>" r="6" class="map-pin-dot <%= loc.controlling_tribe_name ? 'map-pin-claimed' : '' %>" />
+          <title><%= loc.name %><% if (isHere) { %> (you are here)<% } %></title>
+        </g>
+      <% }); %>
+    </svg>
+
+    <div class="map-legend">
+      <span><span class="legend-dot legend-dot-here"></span>You are here</span>
+      <span><span class="legend-dot legend-dot-claimed"></span>Tribe-held</span>
+      <span><span class="legend-dot legend-dot-neutral"></span>Unclaimed</span>
+    </div>
+  </section>
+
+  <aside class="map-detail-panel">
+    <% locations.forEach(function (loc) {
+         var isHere = loc.id === character.location_id;
+    %>
+      <div class="panel location-detail <%= isHere ? 'active' : '' %>" data-location-detail="<%= loc.key %>">
+        <div class="panel-header">
+          <h2><%= loc.name %></h2>
+          <% if (isHere) { %><span class="badge badge-tribe">You are here</span><% } %>
+        </div>
+        <% if (loc.sector_label) { %><p class="hint"><%= loc.sector_label %></p><% } %>
+        <p class="description"><%= loc.description %></p>
+        <p>
+          <% if (loc.controlling_tribe_name) { %>
+            <span class="badge badge-tribe"><%= loc.controlling_tribe_name %></span>
+          <% } else { %>
+            <span class="badge">Unclaimed</span>
+          <% } %>
+        </p>
+      </div>
+    <% }); %>
+  </aside>
+</div>

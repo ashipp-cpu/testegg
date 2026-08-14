@@ -14,15 +14,16 @@
          class="side-nav-link <%= activePanel === 'tribe' ? 'active' : '' %>">
         <%- icons.tribe %><span>Tribe</span>
       </a>
+      <a href="/map" hx-get="/map/panel" hx-target="#panel-root" hx-swap="innerHTML transition:true" hx-push-url="/map" data-panel="map"
+         class="side-nav-link <%= activePanel === 'map' ? 'active' : '' %>">
+        <%- icons.map %><span>Map</span>
+      </a>
       <a href="/profile/<%= character.id %>" hx-get="/profile/<%= character.id %>/panel" hx-target="#panel-root" hx-swap="innerHTML transition:true" hx-push-url="/profile/<%= character.id %>" data-panel="profile"
          class="side-nav-link <%= activePanel === 'profile' ? 'active' : '' %>">
         <%- icons.profile %><span>Profile</span>
       </a>
       <span class="side-nav-link disabled">
         <%- icons.quest %><span>Quests</span><span class="soon-tag"><%- icons.lock %>Soon</span>
-      </span>
-      <span class="side-nav-link disabled">
-        <%- icons.map %><span>Map</span><span class="soon-tag"><%- icons.lock %>Soon</span>
       </span>
     </aside>
 
@@ -51,10 +52,11 @@
          class="bottom-nav-link <%= activePanel === 'camp' ? 'active' : '' %>"><%- icons.camp %><span>Camp</span></a>
       <a href="/tribe" hx-get="/tribe/panel" hx-target="#panel-root" hx-swap="innerHTML transition:true" hx-push-url="/tribe" data-panel="tribe"
          class="bottom-nav-link <%= activePanel === 'tribe' ? 'active' : '' %>"><%- icons.tribe %><span>Tribe</span></a>
+      <a href="/map" hx-get="/map/panel" hx-target="#panel-root" hx-swap="innerHTML transition:true" hx-push-url="/map" data-panel="map"
+         class="bottom-nav-link <%= activePanel === 'map' ? 'active' : '' %>"><%- icons.map %><span>Map</span></a>
       <a href="/profile/<%= character.id %>" hx-get="/profile/<%= character.id %>/panel" hx-target="#panel-root" hx-swap="innerHTML transition:true" hx-push-url="/profile/<%= character.id %>" data-panel="profile"
          class="bottom-nav-link <%= activePanel === 'profile' ? 'active' : '' %>"><%- icons.profile %><span>Profile</span></a>
       <span class="bottom-nav-link disabled"><%- icons.quest %><span>Quests</span></span>
-      <span class="bottom-nav-link disabled"><%- icons.map %><span>Map</span></span>
     </nav>
   </div>
 

@@ -417,6 +417,37 @@ input[type="text"]:focus, textarea:focus {
 
 .policy-text { color: var(--text-muted); font-style: italic; }
 
+/* Map */
+.map-layout { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+.map-canvas-wrap { min-width: 0; }
+.map-svg { width: 100%; height: auto; border-radius: var(--radius-md); border: 1px solid var(--border); display: block; }
+
+.map-pin { cursor: pointer; outline: none; }
+.map-pin-ring { fill: rgba(0, 0, 0, 0.001); stroke: var(--border-strong); stroke-width: 2; transition: stroke 0.15s ease, r 0.15s ease; }
+.map-pin-dot { fill: var(--text-muted); transition: fill 0.15s ease; }
+.map-pin-dot.map-pin-claimed { fill: var(--accent); }
+.map-pin:hover .map-pin-ring, .map-pin.active .map-pin-ring { stroke: var(--accent); }
+.map-pin:hover .map-pin-ring, .map-pin.active .map-pin-ring { r: 15; }
+.map-pin-here .map-pin-ring { stroke: var(--accent); stroke-width: 3; }
+.map-pin-here .map-pin-dot { fill: var(--accent); }
+.map-pin-here .map-pin-ring { animation: map-pulse 2s ease-in-out infinite; }
+
+@keyframes map-pulse {
+  0%, 100% { r: 12; opacity: 1; }
+  50% { r: 16; opacity: 0.6; }
+}
+
+.map-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 0.9rem; font-size: 0.82rem; color: var(--text-muted); }
+.map-legend span { display: inline-flex; align-items: center; gap: 0.4em; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.legend-dot-here { background: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.legend-dot-claimed { background: var(--accent); }
+.legend-dot-neutral { background: var(--text-muted); }
+
+.map-detail-panel { display: flex; flex-direction: column; gap: 1rem; }
+.location-detail { display: none; }
+.location-detail.active { display: block; }
+
 /* Desktop layout */
 @media (min-width: 900px) {
   .side-nav { display: flex; }
@@ -425,6 +456,7 @@ input[type="text"]:focus, textarea:focus {
   .chat-log { max-height: 46vh; }
 
   .tribe-grid-layout { grid-template-columns: 1.4fr 1fr; align-items: start; }
+  .map-layout { grid-template-columns: 1.6fr 1fr; align-items: start; }
 }
 
 @media (max-width: 480px) {
