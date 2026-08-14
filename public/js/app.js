@@ -47,28 +47,28 @@ function initChatWidget() {
   });
 }
 
-// Purely client-side: clicking a map pin swaps which location's detail
-// card is shown. No server round-trip since it's all static reference
-// content already rendered on the page.
+// Purely client-side: clicking a location tile swaps which location's
+// detail card is shown. No server round-trip since it's all static
+// reference content already rendered on the page.
 function initMapPanel() {
-  const pins = document.querySelectorAll('.map-pin');
-  if (pins.length === 0) return;
+  const tiles = document.querySelectorAll('.location-tile');
+  if (tiles.length === 0) return;
 
   const showLocation = (key) => {
-    document.querySelectorAll('.map-pin').forEach((pin) => {
-      pin.classList.toggle('active', pin.dataset.location === key);
+    document.querySelectorAll('.location-tile').forEach((tile) => {
+      tile.classList.toggle('active', tile.dataset.location === key);
     });
     document.querySelectorAll('.location-detail').forEach((card) => {
       card.classList.toggle('active', card.dataset.locationDetail === key);
     });
   };
 
-  pins.forEach((pin) => {
-    pin.addEventListener('click', () => showLocation(pin.dataset.location));
-    pin.addEventListener('keydown', (event) => {
+  tiles.forEach((tile) => {
+    tile.addEventListener('click', () => showLocation(tile.dataset.location));
+    tile.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        showLocation(pin.dataset.location);
+        showLocation(tile.dataset.location);
       }
     });
   });

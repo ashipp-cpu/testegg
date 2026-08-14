@@ -5,6 +5,8 @@ const characters = require('../models/character');
 const territories = require('../models/territory');
 const tribeMemberships = require('../models/tribeMembership');
 
+const SECTOR_COUNT = 16;
+
 function loadContext(req, res, next) {
   const character = characters.getByUserId(req.session.userId);
   if (!character) return res.redirect('/characters/new');
@@ -20,9 +22,21 @@ function loadContext(req, res, next) {
 router.use(requireAuth, loadContext);
 
 function buildMapViewModel(character) {
+  const locations = territories.listAll();
+
+  const sectors = [];
+  for (let number = 1; number <= SECTOR_COUNT; number += 1) {
+    sectors.push({
+      number,
+      locations: locations.filter((loc) => loc.sector_number === number),
+    });
+  }
+
   return {
     character,
-    locations: territories.listMapped(),
+    sectors,
+    outside: locations.filter((loc) => loc.sector_number === null),
+    locations,
   };
 }
 

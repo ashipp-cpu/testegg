@@ -15,8 +15,8 @@ function seedTerritory() {
   if (n > 0) return;
 
   db.prepare(`
-    INSERT INTO territories (key, name, description, connections, sector_label, map_x, map_y)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO territories (key, name, description, connections, sector_number, tier)
+    VALUES (?, ?, ?, ?, ?, ?)
   `).run(
     STARTING_TERRITORY_KEY,
     'The Undercroft',
@@ -26,9 +26,8 @@ function seedTerritory() {
       "smoke. Whoever's left in this town ends up passing through here sooner " +
       "or later — it's the closest thing to neutral ground.",
     '[]',
-    null,
-    44,
-    52
+    9,
+    'major'
   );
 }
 
@@ -142,6 +141,8 @@ function seedAchievements() {
 
 // Gated on its own key (not a table-wide count) so it still runs once
 // against a database that already has Undercroft seeded from before.
+// sector_number places a location in the Map tab's 4x4 city grid (1-16);
+// null means it's shown under "Outside the City" instead.
 function seedMapLocations() {
   const existing = db.prepare('SELECT 1 FROM territories WHERE key = ?').get('the-mall');
   if (existing) return;
@@ -152,77 +153,116 @@ function seedMapLocations() {
   };
 
   const insert = db.prepare(`
-    INSERT INTO territories (key, name, description, connections, controlling_tribe_id, sector_label, map_x, map_y)
-    VALUES (?, ?, ?, '[]', ?, ?, ?, ?)
+    INSERT INTO territories (key, name, description, connections, controlling_tribe_id, sector_number, tier)
+    VALUES (?, ?, ?, '[]', ?, ?, ?)
   `);
 
-  const locations = [
+  const majors = [
     // Within the city
     [
       'the-mall', 'The Mall',
       'A gutted shopping centre repurposed into a fortress-home, its storefronts stripped for parts and its food court turned into a mess hall.',
-      tribeIdByKey('mallrats'), 'Sector 10', 48, 45,
+      tribeIdByKey('mallrats'), 10,
     ],
     [
       'horton-bailey-hotel', 'Horton Bailey Hotel',
       "Once the city's grandest hotel, its ballrooms and function rooms have changed hands more times than anyone can count.",
-      null, 'Sector 9', 56, 42,
+      null, 9,
     ],
     [
       'rail-yards', 'Rail Yards',
       'Rows of rusting freight cars and dead signal towers, right where the city gives way to the wild.',
-      tribeIdByKey('locos'), 'Sector 9', 36, 52,
+      tribeIdByKey('locos'), 9,
     ],
     [
       'state-buildings', 'Various State Buildings',
       'Government offices and civic halls, their marble lobbies long since stripped bare. Nobody controls all of it.',
-      null, null, 50, 36,
+      null, 5,
     ],
     [
       'casino', 'Casino',
       'Neon signs gone dark and gaming floors picked clean of anything worth carrying.',
-      tribeIdByKey('demon-dogz'), 'Sector 2', 60, 30,
+      tribeIdByKey('demon-dogz'), 2,
     ],
     [
       'docks', 'Docks',
       'Warehouses and loading cranes along the waterline — handy for anyone trading in whatever the tide brings in.',
-      tribeIdByKey('gulls'), 'Sector 9/10', 66, 63,
+      tribeIdByKey('gulls'), 10,
     ],
     // Outside the city
     [
       'liberty', 'Liberty',
       "A town some distance from the city, found by outsiders looking for somewhere the collapse hadn't reached quite so hard.",
-      null, null, 85, 22,
+      null, null,
     ],
     [
       'eco-camp', 'Eco Camp',
       'A camp in the treeline, built and kept by people who never trusted the city to begin with.',
-      tribeIdByKey('ecos'), null, 14, 46,
+      tribeIdByKey('ecos'), null,
     ],
     [
       'eagle-mountain', 'Eagle Mountain',
       'High ground with an old observatory at the top, its dome cracked open to the sky. Cold, exposed, and a long climb.',
-      null, null, 20, 14,
+      null, null,
     ],
     [
       'hope-island', 'Hope Island',
       "A small island offshore, reachable only by boat, holding secrets nobody's fully worked out yet.",
-      null, null, 82, 84,
+      null, null,
     ],
     [
       'the-beach', 'The Beach',
       "Open sand and driftwood fires. Treated as neutral ground when tribes need to meet without it turning into a fight.",
-      null, null, 70, 80,
+      null, null,
     ],
     [
       'the-farm', 'The Farm',
       'Fenced fields and a working well, kept alive by people who decided growing food mattered more than defending a fortress.',
-      tribeIdByKey('farm-girls'), null, 24, 76,
+      tribeIdByKey('farm-girls'), null,
     ],
   ];
 
+  // Generic minor locations, unclaimed at the start — most of the map's
+  // actual territory-claiming targets once that reaches beyond
+  // The Undercroft. Spread across the sectors that don't already have
+  // two majors, plus a handful outside the city.
+  const minors = [
+    ['old-police-station', 'Old Police Station', 'Cells still locked, evidence room long since picked through.', 1],
+    ['corner-store', 'Corner Store', "Boarded windows, but the door's been kicked in more than once.", 2],
+    ['public-library', 'Public Library', 'Nobody reads anymore, but the reference section still has good maps.', 3],
+    ['riverside-apartments', 'Riverside Apartments', 'Dozens of units, most stripped bare, a few still locked tight.', 3],
+    ['hardware-store', 'Hardware Store', 'Picked over early, but the stockroom out back still surprises people.', 4],
+    ['bus-depot', 'Bus Depot', 'Rows of dead buses, good for parts or sleeping rough.', 4],
+    ['fire-station', 'Fire Station', 'Trucks are long gone, but the tools cabinet is worth checking.', 5],
+    ['old-cinema', 'Old Cinema', 'Marquee letters have fallen off one by one. Screens are torn through.', 6],
+    ['laundromat', 'Laundromat', "Machines rusted shut, but it's dry and mostly out of sight.", 6],
+    ['warehouse-district', 'Warehouse District', 'Rows of shuttered loading bays. Easy to get lost in, easier to get trapped.', 7],
+    ['high-school', 'High School', "Lockers still have names on them. Nobody's touched the gym in years.", 7],
+    ['old-supermarket', 'Old Supermarket', 'Shelves went bare fast, but people still check the storeroom out of habit.', 8],
+    ['old-gym', 'Old Gym', "Weights rusted in place. Someone's been keeping the mats clean, though.", 8],
+    ['old-diner', 'Old Diner', 'Booths are falling apart, but the kitchen still has usable knives.', 11],
+    ['playground', 'Playground', "Rusted swings creak in the wind. Nobody's kept it up.", 11],
+    ['community-pool', 'Community Pool', 'Drained and cracked, used more as a lookout point these days.', 12],
+    ['freeway-overpass', 'Freeway Overpass', 'High ground and good sightlines, but exposed to the weather.', 12],
+    ['old-radio-station', 'Old Radio Station', "The antenna's still standing. Nobody's gotten the equipment working again.", 13],
+    ['construction-site', 'Abandoned Construction Site', 'A half-built tower, scaffolding still up. Dangerous, but tall.', 13],
+    ['electronics-store', 'Electronics Store', 'Picked clean of anything with a battery a long time ago.', 14],
+    ['university-campus', 'University Campus', 'Lecture halls and dorms, sprawling and easy to get turned around in.', 14],
+    ['old-hospital', 'Old Hospital', 'Wards long emptied, but the dispensary still gets checked from time to time.', 15],
+    ['sports-stadium', 'Sports Stadium', 'Huge and echoing. Used for gatherings when the tribes can stand to share it.', 15],
+    ['old-church', 'Old Church', "Pews mostly intact. Some people still won't go inside.", 16],
+    ['cemetery', 'Cemetery', 'Quiet, overgrown, and mostly left alone.', 16],
+    // Outside the city
+    ['roadside-motel', 'Roadside Motel', 'Rooms mostly gutted, but the sign still lights up some nights nobody can explain.', null],
+    ['grain-silo', 'Grain Silo', 'Empty now, but it still stands tall over the fields.', null],
+    ['truck-stop-diner', 'Truck Stop Diner', 'Picked-over vending machines and a boarded-up counter.', null],
+    ['old-quarry', 'Old Quarry', 'A deep cut in the rock, good for hiding, bad for getting out of in a hurry.', null],
+    ['ranger-station', 'Forest Ranger Station', 'A lookout tower and a locked supply shed, half-swallowed by the treeline.', null],
+  ];
+
   const insertAll = db.transaction((rows) => rows.forEach((row) => insert.run(...row)));
-  insertAll(locations);
+  insertAll(majors.map((row) => [...row, 'major']));
+  insertAll(minors.map(([key, name, description, sectorNumber]) => [key, name, description, null, sectorNumber, 'minor']));
 }
 
 module.exports = seed;

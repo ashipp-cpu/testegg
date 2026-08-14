@@ -8,9 +8,12 @@ CREATE TABLE IF NOT EXISTS users (
 -- A physical place characters stand in, and the unit tribes claim as
 -- territory. parent_territory_id is reserved so sub-locations can be
 -- added without a breaking migration. controlling_tribe_id is null
--- while unclaimed. sector_label and map_x/map_y (0-100 percent within
--- the map viewBox) are display-only, used by the Map tab; both are
--- null for territories not shown on the map.
+-- while unclaimed. sector_number places a territory in the Map tab's
+-- city grid (1-16; null means it's shown under "Outside the City"
+-- instead of inside a numbered sector). tier distinguishes named,
+-- plot-relevant locations ('major') from the many small, mostly
+-- interchangeable ones added purely to give territory claiming
+-- somewhere to happen ('minor').
 CREATE TABLE IF NOT EXISTS territories (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   key TEXT NOT NULL UNIQUE,
@@ -19,9 +22,8 @@ CREATE TABLE IF NOT EXISTS territories (
   parent_territory_id INTEGER REFERENCES territories(id),
   connections TEXT NOT NULL DEFAULT '[]',
   controlling_tribe_id INTEGER REFERENCES tribes(id),
-  sector_label TEXT,
-  map_x REAL,
-  map_y REAL
+  sector_number INTEGER,
+  tier TEXT NOT NULL DEFAULT 'minor'
 );
 
 CREATE TABLE IF NOT EXISTS skills (
