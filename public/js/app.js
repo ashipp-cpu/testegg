@@ -47,31 +47,58 @@ function initChatWidget() {
   });
 }
 
-// Purely client-side: clicking a location tile (grid building, outside-
-// city tile, or minor-location chip — anything with data-location) swaps
-// which location's detail card is shown. No server round-trip since it's
-// all static reference content already rendered on the page.
+// Purely client-side: clicking a location tile (a grid building or minor
+// marker, on either grid) opens an overlay showing that location's detail
+// card. No server round-trip since it's all static reference content
+// already rendered on the page, just hidden until picked.
 function initMapPanel() {
   const tiles = document.querySelectorAll('[data-location]');
-  if (tiles.length === 0) return;
+  const backdrop = document.querySelector('[data-modal-backdrop]');
+  if (tiles.length === 0 || !backdrop) return;
 
-  const showLocation = (key) => {
+  const openLocation = (key) => {
     document.querySelectorAll('[data-location]').forEach((tile) => {
       tile.classList.toggle('active', tile.dataset.location === key);
     });
-    document.querySelectorAll('.location-detail').forEach((card) => {
+    document.querySelectorAll('.modal-detail').forEach((card) => {
       card.classList.toggle('active', card.dataset.locationDetail === key);
     });
+    backdrop.classList.add('active');
   };
 
+  const closeModal = () => backdrop.classList.remove('active');
+
   tiles.forEach((tile) => {
-    tile.addEventListener('click', () => showLocation(tile.dataset.location));
+    tile.addEventListener('click', () => openLocation(tile.dataset.location));
     tile.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        showLocation(tile.dataset.location);
+        openLocation(tile.dataset.location);
       }
     });
+  });
+
+  backdrop.addEventListener('click', (event) => {
+    if (event.target === backdrop) closeModal();
+  });
+  const closeBtn = backdrop.querySelector('[data-modal-close]');
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeModal();
+  });
+}
+
+// Toggles the "Run Demo" preview — moving caravan/attack icons and tribe
+// name labels over the city grid — purely a visual class toggle, no data.
+function initDemoToggle() {
+  const btn = document.querySelector('[data-demo-toggle]');
+  const target = document.querySelector('[data-demo-target]');
+  if (!btn || !target) return;
+
+  btn.addEventListener('click', () => {
+    const active = target.classList.toggle('demo-active');
+    btn.textContent = active ? 'Stop Demo' : 'Run Demo';
   });
 }
 
@@ -89,6 +116,7 @@ function currentPanelName() {
 document.addEventListener('DOMContentLoaded', () => {
   initChatWidget();
   initMapPanel();
+  initDemoToggle();
   const panelName = currentPanelName();
   if (panelName) syncActiveNav(panelName);
 });
@@ -102,4 +130,5 @@ document.body.addEventListener('htmx:afterSettle', (event) => {
   if (panelName) syncActiveNav(panelName);
   initChatWidget();
   initMapPanel();
+  initDemoToggle();
 });

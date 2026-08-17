@@ -1,92 +1,142 @@
 <div data-panel="map" class="map-layout">
-    <section class="panel">
-      <div class="panel-header">
-        <h2>The City</h2>
-        <span class="status-live"><span class="status-live-dot"></span>LIVE MAP</span>
+  <section class="panel map-panel">
+    <div class="panel-header">
+      <h2>The Map</h2>
+      <span class="status-live"><span class="status-live-dot"></span>LIVE MAP</span>
+    </div>
+
+    <div class="map-grids" data-demo-target>
+      <div class="map-grid-block">
+        <h3 class="map-grid-title">Outside the City</h3>
+        <div class="city-grid-wrap">
+          <div class="city-grid" style="grid-template-columns: repeat(<%= outsideGridSize %>, var(--grid-tile)); grid-template-rows: repeat(<%= outsideGridSize %>, var(--grid-tile));">
+            <% for (var or = 1; or <= outsideGridSize; or++) { %>
+              <% for (var oc = 1; oc <= outsideGridSize; oc++) { %>
+                <div class="floor-tile" style="grid-row: <%= or %>; grid-column: <%= oc %>;">&middot;</div>
+              <% } %>
+            <% } %>
+
+            <% outsideGridLocations.forEach(function (loc) {
+                 var isHere = loc.id === character.location_id;
+                 var isMajor = loc.tier === 'major';
+            %>
+              <div class="grid-location <%= isMajor ? 'grid-location-major' : 'grid-location-minor' %> <%= isHere ? 'grid-location-here' : '' %> <%= loc.controlling_tribe_name ? 'grid-location-claimed' : '' %>"
+                   style="grid-row: <%= loc.grid_row %> / span <%= loc.grid_row_span %>; grid-column: <%= loc.grid_col %> / span <%= loc.grid_col_span %>;"
+                   data-location="<%= loc.key %>" tabindex="0" title="<%= loc.name %>">
+                <% if (isMajor) { %>
+                  <span class="grid-location-name"><%= loc.name %></span>
+                  <% if (loc.controlling_tribe_name) { %>
+                    <span class="grid-location-tribeflag"><%= loc.controlling_tribe_name %></span>
+                  <% } %>
+                <% } %>
+              </div>
+            <% }); %>
+          </div>
+        </div>
       </div>
 
-      <div class="city-grid-wrap">
-        <div class="city-grid" style="grid-template-columns: repeat(<%= gridSize %>, var(--grid-tile)); grid-template-rows: repeat(<%= gridSize %>, var(--grid-tile));">
-          <% sectors.forEach(function (sector) { %>
-            <div class="sector-region"
-                 style="grid-row: <%= sector.startRow %> / span <%= sector.rowSpan %>; grid-column: <%= sector.startCol %> / span <%= sector.colSpan %>; background-color: <%= sector.color %>;">
-              <span class="sector-region-label">SECTOR <%= sector.number %></span>
-            </div>
-          <% }); %>
+      <div class="map-grid-block">
+        <h3 class="map-grid-title">The City</h3>
+        <div class="city-grid-wrap">
+          <div class="city-grid" style="grid-template-columns: repeat(<%= gridSize %>, var(--grid-tile)); grid-template-rows: repeat(<%= gridSize %>, var(--grid-tile));">
+            <% sectors.forEach(function (sector) { %>
+              <div class="sector-region"
+                   style="grid-row: <%= sector.startRow %> / span <%= sector.rowSpan %>; grid-column: <%= sector.startCol %> / span <%= sector.colSpan %>; background-color: <%= sector.color %>;">
+                <span class="sector-region-label">SECTOR <%= sector.number %></span>
+              </div>
+            <% }); %>
 
-          <% for (var r = 1; r <= gridSize; r++) { %>
-            <% for (var c = 1; c <= gridSize; c++) { %>
-              <div class="floor-tile" style="grid-row: <%= r %>; grid-column: <%= c %>;">&middot;</div>
+            <% for (var r = 1; r <= gridSize; r++) { %>
+              <% for (var c = 1; c <= gridSize; c++) { %>
+                <div class="floor-tile" style="grid-row: <%= r %>; grid-column: <%= c %>;">&middot;</div>
+              <% } %>
             <% } %>
+
+            <% gridLocations.forEach(function (loc) {
+                 var isHere = loc.id === character.location_id;
+                 var isMajor = loc.tier === 'major';
+            %>
+              <div class="grid-location <%= isMajor ? 'grid-location-major' : 'grid-location-minor' %> <%= isHere ? 'grid-location-here' : '' %> <%= loc.controlling_tribe_name ? 'grid-location-claimed' : '' %>"
+                   style="grid-row: <%= loc.grid_row %> / span <%= loc.grid_row_span %>; grid-column: <%= loc.grid_col %> / span <%= loc.grid_col_span %>;"
+                   data-location="<%= loc.key %>" tabindex="0" title="<%= loc.name %>">
+                <% if (isMajor) { %>
+                  <span class="grid-location-name"><%= loc.name %></span>
+                  <% if (loc.controlling_tribe_name) { %>
+                    <span class="grid-location-tribeflag"><%= loc.controlling_tribe_name %></span>
+                  <% } %>
+                <% } %>
+              </div>
+            <% }); %>
+
+            <% if (demo) { %>
+              <svg class="demo-overlay" viewBox="0 0 <%= gridSize %> <%= gridSize %>" preserveAspectRatio="none" aria-hidden="true">
+                <line class="demo-route demo-route-trade" vector-effect="non-scaling-stroke"
+                      x1="<%= demo.caravan.from.x %>" y1="<%= demo.caravan.from.y %>"
+                      x2="<%= demo.caravan.to.x %>" y2="<%= demo.caravan.to.y %>" />
+                <line class="demo-route demo-route-attack" vector-effect="non-scaling-stroke"
+                      x1="<%= demo.attack.from.x %>" y1="<%= demo.attack.from.y %>"
+                      x2="<%= demo.attack.to.x %>" y2="<%= demo.attack.to.y %>" />
+
+                <circle class="demo-icon demo-icon-trade" r="0.45">
+                  <animateMotion dur="3.5s" repeatCount="indefinite"
+                    path="M <%= demo.caravan.from.x %> <%= demo.caravan.from.y %> L <%= demo.caravan.to.x %> <%= demo.caravan.to.y %> L <%= demo.caravan.from.x %> <%= demo.caravan.from.y %>" />
+                </circle>
+
+                <circle class="demo-icon demo-icon-attack" r="0.4">
+                  <animateMotion dur="2s" repeatCount="indefinite"
+                    path="M <%= demo.attack.from.x %> <%= demo.attack.from.y %> L <%= demo.attack.to.x %> <%= demo.attack.to.y %>" />
+                </circle>
+
+                <g class="demo-battle" transform="translate(<%= demo.battle.x %>, <%= demo.battle.y %>)">
+                  <circle class="demo-battle-pulse" r="1" />
+                  <text class="demo-battle-icon" x="0" y="0.35" text-anchor="middle">&#9876;</text>
+                </g>
+              </svg>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-legend">
+      <span><span class="legend-dot legend-dot-here"></span>You are here</span>
+      <span><span class="legend-dot legend-dot-claimed"></span>Tribe-held</span>
+      <span><span class="legend-dot legend-dot-neutral"></span>Unclaimed</span>
+      <span><span class="legend-dot legend-dot-major"></span>Major location</span>
+      <span><span class="legend-dot legend-dot-minor"></span>Minor location</span>
+    </div>
+
+    <div class="map-demo-controls">
+      <button type="button" class="btn btn-ghost" data-demo-toggle>Run Demo</button>
+      <p class="hint">Simulates trade caravans, a raid, and territory control — a preview of how the live map will read once these are real.</p>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop" data-modal-backdrop>
+  <div class="modal-card">
+    <button type="button" class="modal-close" data-modal-close aria-label="Close">&times;</button>
+    <% locations.forEach(function (loc) {
+         var isHere = loc.id === character.location_id;
+    %>
+      <div class="modal-detail" data-location-detail="<%= loc.key %>">
+        <div class="panel-header">
+          <h2><%= loc.name %></h2>
+          <% if (isHere) { %><span class="badge badge-tribe">You are here</span><% } %>
+        </div>
+        <p class="hint">
+          <%= loc.sector_number ? ('Sector ' + loc.sector_number) : 'Outside the city' %>
+          &middot; <%= loc.tier === 'major' ? 'Major location' : 'Minor location' %>
+        </p>
+        <p class="description"><%= loc.description %></p>
+        <p>
+          <% if (loc.controlling_tribe_name) { %>
+            <span class="badge badge-tribe"><%= loc.controlling_tribe_name %></span>
+          <% } else { %>
+            <span class="badge">Unclaimed</span>
           <% } %>
-
-          <% gridLocations.forEach(function (loc) {
-               var isHere = loc.id === character.location_id;
-          %>
-            <div class="grid-location <%= isHere ? 'grid-location-here' : '' %> <%= loc.controlling_tribe_name ? 'grid-location-claimed' : '' %>"
-                 style="grid-row: <%= loc.grid_row %> / span <%= loc.grid_row_span %>; grid-column: <%= loc.grid_col %> / span <%= loc.grid_col_span %>;"
-                 data-location="<%= loc.key %>" tabindex="0" title="<%= loc.name %>">
-              <span class="grid-location-name"><%= loc.name %></span>
-            </div>
-          <% }); %>
-        </div>
+        </p>
       </div>
-
-      <div class="map-legend">
-        <span><span class="legend-dot legend-dot-here"></span>You are here</span>
-        <span><span class="legend-dot legend-dot-claimed"></span>Tribe-held</span>
-        <span><span class="legend-dot legend-dot-neutral"></span>Unclaimed</span>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-header"><h2>Outside the City</h2></div>
-      <div class="sector-locations outside-city-grid">
-        <% outside.forEach(function (loc) {
-             var isHere = loc.id === character.location_id;
-        %>
-          <div class="location-tile location-tile-major <%= isHere ? 'location-tile-here' : '' %> <%= loc.controlling_tribe_name ? 'location-tile-claimed' : '' %>"
-               data-location="<%= loc.key %>" tabindex="0" title="<%= loc.name %>">
-            <span class="location-tile-name"><%= loc.name %></span>
-          </div>
-        <% }); %>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-header"><h2>Minor Locations</h2></div>
-      <p class="hint">Smaller sites scattered through the sectors — the rest of the map for territory claiming once it reaches beyond The Undercroft.</p>
-      <div class="minor-chip-list">
-        <% minors.forEach(function (loc) { %>
-          <div class="minor-chip" data-location="<%= loc.key %>" tabindex="0">
-            <%= loc.name %><% if (loc.sector_number) { %> <span class="hint">S<%= loc.sector_number %></span><% } %>
-          </div>
-        <% }); %>
-      </div>
-    </section>
-
-    <section class="map-detail-panel">
-      <% locations.forEach(function (loc) {
-           var isHere = loc.id === character.location_id;
-      %>
-        <div class="panel location-detail <%= isHere ? 'active' : '' %>" data-location-detail="<%= loc.key %>">
-          <div class="panel-header">
-            <h2><%= loc.name %></h2>
-            <% if (isHere) { %><span class="badge badge-tribe">You are here</span><% } %>
-          </div>
-          <p class="hint">
-            <%= loc.sector_number ? ('Sector ' + loc.sector_number) : 'Outside the city' %>
-            &middot; <%= loc.tier === 'major' ? 'Major location' : 'Minor location' %>
-          </p>
-          <p class="description"><%= loc.description %></p>
-          <p>
-            <% if (loc.controlling_tribe_name) { %>
-              <span class="badge badge-tribe"><%= loc.controlling_tribe_name %></span>
-            <% } else { %>
-              <span class="badge">Unclaimed</span>
-            <% } %>
-          </p>
-        </div>
-      <% }); %>
-    </section>
+    <% }); %>
+  </div>
 </div>

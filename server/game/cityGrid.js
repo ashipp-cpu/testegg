@@ -4,6 +4,10 @@
 // are 1-indexed to match CSS grid-row/grid-column.
 const GRID_SIZE = 25;
 
+// The land outside the city — no sectors, just a smaller 15x15 tile grid
+// that the handful of far-flung locations (and a few minor sites) sit on.
+const OUTSIDE_GRID_SIZE = 15;
+
 const SECTORS = [
   { number: 5, startRow: 1, startCol: 1, rowSpan: 6, colSpan: 6, color: '#2c3542' },
   { number: 7, startRow: 1, startCol: 7, rowSpan: 6, colSpan: 7, color: '#383a22' },
@@ -23,4 +27,4 @@ const SECTORS = [
   { number: 14, startRow: 20, startCol: 20, rowSpan: 6, colSpan: 6, color: '#3a2e20' },
 ];
 
-module.exports = { GRID_SIZE, SECTORS };
+module.exports = { GRID_SIZE, OUTSIDE_GRID_SIZE, SECTORS };

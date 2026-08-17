@@ -145,8 +145,9 @@ function seedAchievements() {
 
 // Gated on its own key (not a table-wide count) so it still runs once
 // against a database that already has Undercroft seeded from before.
-// sector_number places a location in the Map tab's 4x4 city grid (1-16);
-// null means it's shown under "Outside the City" instead.
+// sector_number places a location within one of the 16 sectors on the
+// Map tab's 25x25 city grid; null means it's drawn on the smaller 15x15
+// "Outside the City" grid instead.
 function seedMapLocations() {
   const existing = db.prepare('SELECT 1 FROM territories WHERE key = ?').get('the-mall');
   if (existing) return;
@@ -199,76 +200,78 @@ function seedMapLocations() {
     ],
   ];
 
-  // Outside the city — not drawn on the grid, shown in their own section.
+  // Outside the city — drawn on their own smaller 15x15 grid
+  // (server/game/cityGrid.js's OUTSIDE_GRID_SIZE), positioned to avoid
+  // overlapping each other or the outside minors below.
   const majorsOutside = [
     [
       'liberty', 'Liberty',
       "A town some distance from the city, found by outsiders looking for somewhere the collapse hadn't reached quite so hard.",
-      null, null,
+      null, null, 2, 2, 3, 3,
     ],
     [
       'eco-camp', 'Eco Camp',
       'A camp in the treeline, built and kept by people who never trusted the city to begin with.',
-      tribeIdByKey('ecos'), null,
+      tribeIdByKey('ecos'), null, 2, 10, 2, 2,
     ],
     [
       'eagle-mountain', 'Eagle Mountain',
       'High ground with an old observatory at the top, its dome cracked open to the sky. Cold, exposed, and a long climb.',
-      null, null,
+      null, null, 7, 2, 2, 2,
     ],
     [
       'hope-island', 'Hope Island',
       "A small island offshore, reachable only by boat, holding secrets nobody's fully worked out yet.",
-      null, null,
+      null, null, 11, 12, 2, 2,
     ],
     [
       'the-beach', 'The Beach',
       "Open sand and driftwood fires. Treated as neutral ground when tribes need to meet without it turning into a fight.",
-      null, null,
+      null, null, 13, 2, 2, 3,
     ],
     [
       'the-farm', 'The Farm',
       'Fenced fields and a working well, kept alive by people who decided growing food mattered more than defending a fortress.',
-      tribeIdByKey('farm-girls'), null,
+      tribeIdByKey('farm-girls'), null, 6, 7, 3, 2,
     ],
   ];
 
   // Generic minor locations, unclaimed at the start — most of the map's
-  // actual territory-claiming targets once that reaches beyond
-  // The Undercroft. Spread across the sectors that don't already have
-  // two majors, plus a handful outside the city.
+  // actual territory-claiming targets once that reaches beyond The
+  // Undercroft. Each is a single tile, positioned within its sector on the
+  // city grid, or (for the handful with no sector) on the outside grid.
   const minors = [
-    ['old-police-station', 'Old Police Station', 'Cells still locked, evidence room long since picked through.', 1],
-    ['corner-store', 'Corner Store', "Boarded windows, but the door's been kicked in more than once.", 2],
-    ['public-library', 'Public Library', 'Nobody reads anymore, but the reference section still has good maps.', 3],
-    ['riverside-apartments', 'Riverside Apartments', 'Dozens of units, most stripped bare, a few still locked tight.', 3],
-    ['hardware-store', 'Hardware Store', 'Picked over early, but the stockroom out back still surprises people.', 4],
-    ['bus-depot', 'Bus Depot', 'Rows of dead buses, good for parts or sleeping rough.', 4],
-    ['fire-station', 'Fire Station', 'Trucks are long gone, but the tools cabinet is worth checking.', 5],
-    ['old-cinema', 'Old Cinema', 'Marquee letters have fallen off one by one. Screens are torn through.', 6],
-    ['laundromat', 'Laundromat', "Machines rusted shut, but it's dry and mostly out of sight.", 6],
-    ['warehouse-district', 'Warehouse District', 'Rows of shuttered loading bays. Easy to get lost in, easier to get trapped.', 7],
-    ['high-school', 'High School', "Lockers still have names on them. Nobody's touched the gym in years.", 7],
-    ['old-supermarket', 'Old Supermarket', 'Shelves went bare fast, but people still check the storeroom out of habit.', 8],
-    ['old-gym', 'Old Gym', "Weights rusted in place. Someone's been keeping the mats clean, though.", 8],
-    ['old-diner', 'Old Diner', 'Booths are falling apart, but the kitchen still has usable knives.', 11],
-    ['playground', 'Playground', "Rusted swings creak in the wind. Nobody's kept it up.", 11],
-    ['community-pool', 'Community Pool', 'Drained and cracked, used more as a lookout point these days.', 12],
-    ['freeway-overpass', 'Freeway Overpass', 'High ground and good sightlines, but exposed to the weather.', 12],
-    ['old-radio-station', 'Old Radio Station', "The antenna's still standing. Nobody's gotten the equipment working again.", 13],
-    ['construction-site', 'Abandoned Construction Site', 'A half-built tower, scaffolding still up. Dangerous, but tall.', 13],
-    ['electronics-store', 'Electronics Store', 'Picked clean of anything with a battery a long time ago.', 14],
-    ['university-campus', 'University Campus', 'Lecture halls and dorms, sprawling and easy to get turned around in.', 14],
-    ['old-hospital', 'Old Hospital', 'Wards long emptied, but the dispensary still gets checked from time to time.', 15],
-    ['sports-stadium', 'Sports Stadium', 'Huge and echoing. Used for gatherings when the tribes can stand to share it.', 15],
-    ['old-church', 'Old Church', "Pews mostly intact. Some people still won't go inside.", 16],
-    ['cemetery', 'Cemetery', 'Quiet, overgrown, and mostly left alone.', 16],
-    // Outside the city
-    ['roadside-motel', 'Roadside Motel', 'Rooms mostly gutted, but the sign still lights up some nights nobody can explain.', null],
-    ['grain-silo', 'Grain Silo', 'Empty now, but it still stands tall over the fields.', null],
-    ['truck-stop-diner', 'Truck Stop Diner', 'Picked-over vending machines and a boarded-up counter.', null],
-    ['old-quarry', 'Old Quarry', 'A deep cut in the rock, good for hiding, bad for getting out of in a hurry.', null],
-    ['ranger-station', 'Forest Ranger Station', 'A lookout tower and a locked supply shed, half-swallowed by the treeline.', null],
+    ['old-police-station', 'Old Police Station', 'Cells still locked, evidence room long since picked through.', 1, 17, 3],
+    ['corner-store', 'Corner Store', "Boarded windows, but the door's been kicked in more than once.", 2, 5, 18],
+    ['public-library', 'Public Library', 'Nobody reads anymore, but the reference section still has good maps.', 3, 3, 22],
+    ['riverside-apartments', 'Riverside Apartments', 'Dozens of units, most stripped bare, a few still locked tight.', 3, 3, 24],
+    ['hardware-store', 'Hardware Store', 'Picked over early, but the stockroom out back still surprises people.', 4, 22, 9],
+    ['bus-depot', 'Bus Depot', 'Rows of dead buses, good for parts or sleeping rough.', 4, 22, 11],
+    ['fire-station', 'Fire Station', 'Trucks are long gone, but the tools cabinet is worth checking.', 5, 5, 5],
+    ['old-cinema', 'Old Cinema', 'Marquee letters have fallen off one by one. Screens are torn through.', 6, 22, 3],
+    ['laundromat', 'Laundromat', "Machines rusted shut, but it's dry and mostly out of sight.", 6, 22, 5],
+    ['warehouse-district', 'Warehouse District', 'Rows of shuttered loading bays. Easy to get lost in, easier to get trapped.', 7, 3, 9],
+    ['high-school', 'High School', "Lockers still have names on them. Nobody's touched the gym in years.", 7, 3, 11],
+    ['old-supermarket', 'Old Supermarket', 'Shelves went bare fast, but people still check the storeroom out of habit.', 8, 16, 16],
+    ['old-gym', 'Old Gym', "Weights rusted in place. Someone's been keeping the mats clean, though.", 8, 16, 18],
+    ['old-diner', 'Old Diner', 'Booths are falling apart, but the kitchen still has usable knives.', 11, 22, 16],
+    ['playground', 'Playground', "Rusted swings creak in the wind. Nobody's kept it up.", 11, 22, 18],
+    ['community-pool', 'Community Pool', 'Drained and cracked, used more as a lookout point these days.', 12, 9, 16],
+    ['freeway-overpass', 'Freeway Overpass', 'High ground and good sightlines, but exposed to the weather.', 12, 9, 18],
+    ['old-radio-station', 'Old Radio Station', "The antenna's still standing. Nobody's gotten the equipment working again.", 13, 16, 9],
+    ['construction-site', 'Abandoned Construction Site', 'A half-built tower, scaffolding still up. Dangerous, but tall.', 13, 16, 11],
+    ['electronics-store', 'Electronics Store', 'Picked clean of anything with a battery a long time ago.', 14, 22, 22],
+    ['university-campus', 'University Campus', 'Lecture halls and dorms, sprawling and easy to get turned around in.', 14, 22, 24],
+    ['old-hospital', 'Old Hospital', 'Wards long emptied, but the dispensary still gets checked from time to time.', 15, 9, 3],
+    ['sports-stadium', 'Sports Stadium', 'Huge and echoing. Used for gatherings when the tribes can stand to share it.', 15, 9, 5],
+    ['old-church', 'Old Church', "Pews mostly intact. Some people still won't go inside.", 16, 16, 22],
+    ['cemetery', 'Cemetery', 'Quiet, overgrown, and mostly left alone.', 16, 16, 24],
+    // Outside the city — placed on the 15x15 outside grid.
+    ['roadside-motel', 'Roadside Motel', 'Rooms mostly gutted, but the sign still lights up some nights nobody can explain.', null, 5, 5],
+    ['grain-silo', 'Grain Silo', 'Empty now, but it still stands tall over the fields.', null, 9, 9],
+    ['truck-stop-diner', 'Truck Stop Diner', 'Picked-over vending machines and a boarded-up counter.', null, 5, 12],
+    ['old-quarry', 'Old Quarry', 'A deep cut in the rock, good for hiding, bad for getting out of in a hurry.', null, 12, 7],
+    ['ranger-station', 'Forest Ranger Station', 'A lookout tower and a locked supply shed, half-swallowed by the treeline.', null, 3, 7],
   ];
 
   const insertAll = db.transaction((rows) => rows.forEach((row) => insert.run(...row)));
@@ -276,11 +279,11 @@ function seedMapLocations() {
   insertAll(majorsOnGrid.map(([key, name, description, tribeId, sectorNumber, row, col, rowSpan, colSpan]) =>
     [key, name, description, tribeId, sectorNumber, 'major', row, col, rowSpan, colSpan]));
 
-  insertAll(majorsOutside.map(([key, name, description, tribeId, sectorNumber]) =>
-    [key, name, description, tribeId, sectorNumber, 'major', null, null, null, null]));
+  insertAll(majorsOutside.map(([key, name, description, tribeId, sectorNumber, row, col, rowSpan, colSpan]) =>
+    [key, name, description, tribeId, sectorNumber, 'major', row, col, rowSpan, colSpan]));
 
-  insertAll(minors.map(([key, name, description, sectorNumber]) =>
-    [key, name, description, null, sectorNumber, 'minor', null, null, null, null]));
+  insertAll(minors.map(([key, name, description, sectorNumber, row, col]) =>
+    [key, name, description, null, sectorNumber, 'minor', row, col, 1, 1]));
 }
 
 module.exports = seed;

@@ -63,22 +63,30 @@ throughout the app (tribe roster, friends/enemies lists) link to it.
 
 ## Map
 
-`/map` renders the city as a 25x25 tile grid — a "live map" look (dark,
+`/map` renders two side-by-side tile grids — a "live map" look (dark,
 monospace, glowing accents) meant to grow into showing territory,
-events, caravans, and markets over time. 16 sectors tile the grid as
-irregular, non-uniform-sized colored regions (hand-placed in
-`server/game/cityGrid.js`, not a plain checkerboard) with a text label
-in the corner. The handful of principal ("major") locations that sit
-within the city are drawn as small multi-tile footprints sized to scale
-inside their sector (The Mall is a 2x3 block, The Undercroft a 2x2,
-Rail Yards a 1x4 strip, etc.) — everything else in a sector is empty
-floor. Locations outside the numbered sectors sit in an "Outside the
-City" section below the grid, and the 30 generic minor locations (not
-drawn on the grid — see below) are listed as a compact chip list
-beneath that. Clicking a building, outside-city tile, or minor chip
-shows its sector, tier, description, and controlling tribe in a detail
-card at the bottom of the page, below all three map sections; your
-character's current location is highlighted and shown by default.
+events, caravans, and markets over time. The larger one, "The City," is
+25x25 tiles. 16 sectors tile it as irregular, non-uniform-sized colored
+regions (hand-placed in `server/game/cityGrid.js`, not a plain
+checkerboard) with a text label in the corner. The smaller one, "Outside
+the City," is a plain 15x15 tile grid (no sectors) sitting to its left
+on wide screens, or stacked above it on narrower ones.
+
+Every location — not just the principal ("major") ones — is drawn
+directly on one of the two grids now; nothing is left in an off-grid
+list. Majors get multi-tile footprints sized to scale (The Mall is a
+2x3 block, The Undercroft a 2x2, Rail Yards a 1x4 strip, etc.) with
+their name on the tile; minors are small unlabeled dot markers (hover
+for a name tooltip) scattered through their sector, or through the
+outside grid if they have no sector. Clicking anything — major, minor,
+on either grid — opens its sector, tier, description, and controlling
+tribe in a modal overlay instead of a page section; your character's
+current location is highlighted and shown by default. A "Run Demo"
+button below the map toggles a preview overlay on the city grid: an
+animated blue line for a trade caravan, a red one for a raid, a pulsing
+battle marker at the target, and tribe-name flags on every claimed
+building — all fake data, just a look at how the live version should
+read once caravans, raids, and territory control are real.
 
 43 locations are seeded: 12 named/major locations plus The Undercroft,
 pulled from *The Tribe* (1999 NZ TV series) as a fan project using the
@@ -92,15 +100,16 @@ Demon Dogz, Eco Camp/Ecos, The Farm/Farm Girls, Docks/Gulls); everything
 else, including all 30 minors, starts unclaimed.
 
 Locations are `territories` rows with a `sector_number` (1-16, or null
-for "Outside the City"), a `tier` ('major'/'minor'), and — only for the
-handful actually drawn on the grid — `grid_row`/`grid_col`/
-`grid_row_span`/`grid_col_span` (1-indexed, matching CSS grid-row/
-grid-column). Adding a new minor location, or repositioning a major one,
-is a seed-data change, not a template change. There's no player movement
-between locations yet, so beyond The Undercroft (everyone's starting/
-only reachable location), the map is a browsable reference for now —
-travel and the territory-claim flow connecting to it are natural next
-steps.
+for the outside grid), a `tier` ('major'/'minor'), and `grid_row`/
+`grid_col`/`grid_row_span`/`grid_col_span` (1-indexed, matching CSS
+grid-row/grid-column) placing them on whichever grid their
+`sector_number` implies. Adding a location, or repositioning one, is a
+seed-data change, not a template change — just watch for overlaps
+within the same sector (or the outside grid). There's no player
+movement between locations yet, so beyond The Undercroft (everyone's
+starting/only reachable location), the map is a browsable reference for
+now — travel and the territory-claim flow connecting to it are natural
+next steps.
 
 ## UI architecture
 
