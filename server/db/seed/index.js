@@ -170,32 +170,32 @@ function seedMapLocations() {
     [
       'the-mall', 'The Mall',
       'A gutted shopping centre repurposed into a fortress-home, its storefronts stripped for parts and its food court turned into a mess hall.',
-      tribeIdByKey('mallrats'), 10, 8, 8, 3, 6,
+      tribeIdByKey('mallrats'), 10, 8, 8, 2, 3,
     ],
     [
       'horton-bailey-hotel', 'Horton Bailey Hotel',
       "Once the city's grandest hotel, its ballrooms and function rooms have changed hands more times than anyone can count.",
-      null, 9, 7, 20, 3, 3,
+      null, 9, 7, 20, 2, 2,
     ],
     [
       'rail-yards', 'Rail Yards',
       'Rows of rusting freight cars and dead signal towers, right where the city gives way to the wild.',
-      tribeIdByKey('locos'), 9, 10, 20, 2, 5,
+      tribeIdByKey('locos'), 9, 10, 20, 1, 4,
     ],
     [
       'state-buildings', 'Various State Buildings',
       'Government offices and civic halls, their marble lobbies long since stripped bare. Nobody controls all of it.',
-      null, 5, 2, 2, 4, 4,
+      null, 5, 2, 2, 2, 2,
     ],
     [
       'casino', 'Casino',
       'Neon signs gone dark and gaming floors picked clean of anything worth carrying.',
-      tribeIdByKey('demon-dogz'), 2, 2, 15, 3, 3,
+      tribeIdByKey('demon-dogz'), 2, 2, 15, 2, 2,
     ],
     [
       'docks', 'Docks',
       'Warehouses and loading cranes along the waterline — handy for anyone trading in whatever the tide brings in.',
-      tribeIdByKey('gulls'), 10, 12, 8, 2, 5,
+      tribeIdByKey('gulls'), 10, 11, 8, 1, 3,
     ],
   ];
 

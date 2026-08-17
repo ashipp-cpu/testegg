@@ -69,15 +69,16 @@ events, caravans, and markets over time. 16 sectors tile the grid as
 irregular, non-uniform-sized colored regions (hand-placed in
 `server/game/cityGrid.js`, not a plain checkerboard) with a text label
 in the corner. The handful of principal ("major") locations that sit
-within the city are drawn as multi-tile footprints sized to scale
-inside their sector (The Mall is a 3x6 block, The Undercroft a 2x2,
-etc.) — everything else in a sector is empty floor. Locations outside
-the numbered sectors sit in an "Outside the City" section below the
-grid, and the 30 generic minor locations (not drawn on the grid — see
-below) are listed as a compact chip list beneath that. Clicking a
-building, outside-city tile, or minor chip shows its sector, tier,
-description, and controlling tribe in a detail card; your character's
-current location is highlighted and shown by default.
+within the city are drawn as small multi-tile footprints sized to scale
+inside their sector (The Mall is a 2x3 block, The Undercroft a 2x2,
+Rail Yards a 1x4 strip, etc.) — everything else in a sector is empty
+floor. Locations outside the numbered sectors sit in an "Outside the
+City" section below the grid, and the 30 generic minor locations (not
+drawn on the grid — see below) are listed as a compact chip list
+beneath that. Clicking a building, outside-city tile, or minor chip
+shows its sector, tier, description, and controlling tribe in a detail
+card at the bottom of the page, below all three map sections; your
+character's current location is highlighted and shown by default.
 
 43 locations are seeded: 12 named/major locations plus The Undercroft,
 pulled from *The Tribe* (1999 NZ TV series) as a fan project using the

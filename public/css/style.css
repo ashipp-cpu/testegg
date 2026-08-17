@@ -420,8 +420,7 @@ input[type="text"]:focus, textarea:focus {
 .policy-text { color: var(--text-muted); font-style: italic; }
 
 /* Map */
-.map-layout { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
-.map-col-main { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+.map-layout { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
 
 .status-live {
   display: inline-flex;
@@ -596,7 +595,6 @@ input[type="text"]:focus, textarea:focus {
   .chat-log { max-height: 46vh; }
 
   .tribe-grid-layout { grid-template-columns: 1.4fr 1fr; align-items: start; }
-  .map-layout { grid-template-columns: 1.85fr 1fr; align-items: start; }
 }
 
 @media (max-width: 480px) {

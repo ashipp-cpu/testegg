@@ -1,14 +1,9 @@
 <div data-panel="map" class="map-layout">
-  <div class="map-col-main">
     <section class="panel">
       <div class="panel-header">
         <h2>The City</h2>
         <span class="status-live"><span class="status-live-dot"></span>LIVE MAP</span>
       </div>
-      <p class="hint">
-        16 sectors, principal locations sized to scale. Territory, events, caravans, and markets
-        will show up here as the world develops. Click a building for details.
-      </p>
 
       <div class="city-grid-wrap">
         <div class="city-grid" style="grid-template-columns: repeat(<%= gridSize %>, var(--grid-tile)); grid-template-rows: repeat(<%= gridSize %>, var(--grid-tile));">
@@ -69,30 +64,29 @@
         <% }); %>
       </div>
     </section>
-  </div>
 
-  <aside class="map-detail-panel">
-    <% locations.forEach(function (loc) {
-         var isHere = loc.id === character.location_id;
-    %>
-      <div class="panel location-detail <%= isHere ? 'active' : '' %>" data-location-detail="<%= loc.key %>">
-        <div class="panel-header">
-          <h2><%= loc.name %></h2>
-          <% if (isHere) { %><span class="badge badge-tribe">You are here</span><% } %>
+    <section class="map-detail-panel">
+      <% locations.forEach(function (loc) {
+           var isHere = loc.id === character.location_id;
+      %>
+        <div class="panel location-detail <%= isHere ? 'active' : '' %>" data-location-detail="<%= loc.key %>">
+          <div class="panel-header">
+            <h2><%= loc.name %></h2>
+            <% if (isHere) { %><span class="badge badge-tribe">You are here</span><% } %>
+          </div>
+          <p class="hint">
+            <%= loc.sector_number ? ('Sector ' + loc.sector_number) : 'Outside the city' %>
+            &middot; <%= loc.tier === 'major' ? 'Major location' : 'Minor location' %>
+          </p>
+          <p class="description"><%= loc.description %></p>
+          <p>
+            <% if (loc.controlling_tribe_name) { %>
+              <span class="badge badge-tribe"><%= loc.controlling_tribe_name %></span>
+            <% } else { %>
+              <span class="badge">Unclaimed</span>
+            <% } %>
+          </p>
         </div>
-        <p class="hint">
-          <%= loc.sector_number ? ('Sector ' + loc.sector_number) : 'Outside the city' %>
-          &middot; <%= loc.tier === 'major' ? 'Major location' : 'Minor location' %>
-        </p>
-        <p class="description"><%= loc.description %></p>
-        <p>
-          <% if (loc.controlling_tribe_name) { %>
-            <span class="badge badge-tribe"><%= loc.controlling_tribe_name %></span>
-          <% } else { %>
-            <span class="badge">Unclaimed</span>
-          <% } %>
-        </p>
-      </div>
-    <% }); %>
-  </aside>
+      <% }); %>
+    </section>
 </div>
