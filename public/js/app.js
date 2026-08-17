@@ -47,15 +47,16 @@ function initChatWidget() {
   });
 }
 
-// Purely client-side: clicking a location tile swaps which location's
-// detail card is shown. No server round-trip since it's all static
-// reference content already rendered on the page.
+// Purely client-side: clicking a location tile (grid building, outside-
+// city tile, or minor-location chip — anything with data-location) swaps
+// which location's detail card is shown. No server round-trip since it's
+// all static reference content already rendered on the page.
 function initMapPanel() {
-  const tiles = document.querySelectorAll('.location-tile');
+  const tiles = document.querySelectorAll('[data-location]');
   if (tiles.length === 0) return;
 
   const showLocation = (key) => {
-    document.querySelectorAll('.location-tile').forEach((tile) => {
+    document.querySelectorAll('[data-location]').forEach((tile) => {
       tile.classList.toggle('active', tile.dataset.location === key);
     });
     document.querySelectorAll('.location-detail').forEach((card) => {

@@ -15,8 +15,11 @@ function seedTerritory() {
   if (n > 0) return;
 
   db.prepare(`
-    INSERT INTO territories (key, name, description, connections, sector_number, tier)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO territories (
+      key, name, description, connections, sector_number, tier,
+      grid_row, grid_col, grid_row_span, grid_col_span
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     STARTING_TERRITORY_KEY,
     'The Undercroft',
@@ -27,7 +30,8 @@ function seedTerritory() {
       "or later — it's the closest thing to neutral ground.",
     '[]',
     9,
-    'major'
+    'major',
+    12, 20, 2, 2
   );
 }
 
@@ -153,43 +157,50 @@ function seedMapLocations() {
   };
 
   const insert = db.prepare(`
-    INSERT INTO territories (key, name, description, connections, controlling_tribe_id, sector_number, tier)
-    VALUES (?, ?, ?, '[]', ?, ?, ?)
+    INSERT INTO territories (
+      key, name, description, connections, controlling_tribe_id, sector_number, tier,
+      grid_row, grid_col, grid_row_span, grid_col_span
+    )
+    VALUES (?, ?, ?, '[]', ?, ?, ?, ?, ?, ?, ?)
   `);
 
-  const majors = [
-    // Within the city
+  // Within the city, drawn on the 25x25 grid — footprint sized to the
+  // location, positioned within its sector's bounds (server/game/cityGrid.js).
+  const majorsOnGrid = [
     [
       'the-mall', 'The Mall',
       'A gutted shopping centre repurposed into a fortress-home, its storefronts stripped for parts and its food court turned into a mess hall.',
-      tribeIdByKey('mallrats'), 10,
+      tribeIdByKey('mallrats'), 10, 8, 8, 3, 6,
     ],
     [
       'horton-bailey-hotel', 'Horton Bailey Hotel',
       "Once the city's grandest hotel, its ballrooms and function rooms have changed hands more times than anyone can count.",
-      null, 9,
+      null, 9, 7, 20, 3, 3,
     ],
     [
       'rail-yards', 'Rail Yards',
       'Rows of rusting freight cars and dead signal towers, right where the city gives way to the wild.',
-      tribeIdByKey('locos'), 9,
+      tribeIdByKey('locos'), 9, 10, 20, 2, 5,
     ],
     [
       'state-buildings', 'Various State Buildings',
       'Government offices and civic halls, their marble lobbies long since stripped bare. Nobody controls all of it.',
-      null, 5,
+      null, 5, 2, 2, 4, 4,
     ],
     [
       'casino', 'Casino',
       'Neon signs gone dark and gaming floors picked clean of anything worth carrying.',
-      tribeIdByKey('demon-dogz'), 2,
+      tribeIdByKey('demon-dogz'), 2, 2, 15, 3, 3,
     ],
     [
       'docks', 'Docks',
       'Warehouses and loading cranes along the waterline — handy for anyone trading in whatever the tide brings in.',
-      tribeIdByKey('gulls'), 10,
+      tribeIdByKey('gulls'), 10, 12, 8, 2, 5,
     ],
-    // Outside the city
+  ];
+
+  // Outside the city — not drawn on the grid, shown in their own section.
+  const majorsOutside = [
     [
       'liberty', 'Liberty',
       "A town some distance from the city, found by outsiders looking for somewhere the collapse hadn't reached quite so hard.",
@@ -261,8 +272,15 @@ function seedMapLocations() {
   ];
 
   const insertAll = db.transaction((rows) => rows.forEach((row) => insert.run(...row)));
-  insertAll(majors.map((row) => [...row, 'major']));
-  insertAll(minors.map(([key, name, description, sectorNumber]) => [key, name, description, null, sectorNumber, 'minor']));
+
+  insertAll(majorsOnGrid.map(([key, name, description, tribeId, sectorNumber, row, col, rowSpan, colSpan]) =>
+    [key, name, description, tribeId, sectorNumber, 'major', row, col, rowSpan, colSpan]));
+
+  insertAll(majorsOutside.map(([key, name, description, tribeId, sectorNumber]) =>
+    [key, name, description, tribeId, sectorNumber, 'major', null, null, null, null]));
+
+  insertAll(minors.map(([key, name, description, sectorNumber]) =>
+    [key, name, description, null, sectorNumber, 'minor', null, null, null, null]));
 }
 
 module.exports = seed;

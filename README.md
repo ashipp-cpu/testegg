@@ -63,33 +63,43 @@ throughout the app (tribe roster, friends/enemies lists) link to it.
 
 ## Map
 
-`/map` lays the city out as a grid: 16 numbered sectors, each a box
-containing the location(s) inside it as smaller clickable squares (major
-locations span two squares, minor ones take one), plus an "Outside the
-City" section below for locations that aren't in a numbered sector.
-Clicking a square shows that location's sector, tier, description, and
-controlling tribe (if any) in a detail card; your character's current
-location is highlighted and shown by default.
+`/map` renders the city as a 25x25 tile grid — a "live map" look (dark,
+monospace, glowing accents) meant to grow into showing territory,
+events, caravans, and markets over time. 16 sectors tile the grid as
+irregular, non-uniform-sized colored regions (hand-placed in
+`server/game/cityGrid.js`, not a plain checkerboard) with a text label
+in the corner. The handful of principal ("major") locations that sit
+within the city are drawn as multi-tile footprints sized to scale
+inside their sector (The Mall is a 3x6 block, The Undercroft a 2x2,
+etc.) — everything else in a sector is empty floor. Locations outside
+the numbered sectors sit in an "Outside the City" section below the
+grid, and the 30 generic minor locations (not drawn on the grid — see
+below) are listed as a compact chip list beneath that. Clicking a
+building, outside-city tile, or minor chip shows its sector, tier,
+description, and controlling tribe in a detail card; your character's
+current location is highlighted and shown by default.
 
 43 locations are seeded: 12 named/major locations plus The Undercroft,
 pulled from *The Tribe* (1999 NZ TV series) as a fan project using the
 real names as-is (location descriptions are original text, not copied
-from any wiki — see the Locations note below on characters/plot), and
-30 generic minor locations (abandoned stores, an old hospital, a
-university campus...) invented purely to give territory claiming
-somewhere to happen once it reaches beyond The Undercroft. A handful of
-majors are pre-seeded as already held by their lore-appropriate tribe
-(The Mall/Mallrats, Rail Yards/Locos, Casino/Demon Dogz, Eco Camp/Ecos,
-The Farm/Farm Girls, Docks/Gulls); everything else, including all 30
-minors, starts unclaimed.
+from any wiki), and 30 generic minor locations (abandoned stores, an
+old hospital, a university campus...) invented purely to give territory
+claiming somewhere to happen once it reaches beyond The Undercroft. A
+handful of majors are pre-seeded as already held by their
+lore-appropriate tribe (The Mall/Mallrats, Rail Yards/Locos, Casino/
+Demon Dogz, Eco Camp/Ecos, The Farm/Farm Girls, Docks/Gulls); everything
+else, including all 30 minors, starts unclaimed.
 
-Locations are just `territories` rows with a `sector_number` (1-16, or
-null for "Outside the City") and a `tier` ('major' or 'minor') — adding
-one is a seed-data change (`server/db/seed/index.js`), not a template
-change. There's no player movement between locations yet, so beyond The
-Undercroft (everyone's starting/only reachable location), the map is a
-browsable reference for now — travel and the territory-claim flow
-connecting to it are natural next steps.
+Locations are `territories` rows with a `sector_number` (1-16, or null
+for "Outside the City"), a `tier` ('major'/'minor'), and — only for the
+handful actually drawn on the grid — `grid_row`/`grid_col`/
+`grid_row_span`/`grid_col_span` (1-indexed, matching CSS grid-row/
+grid-column). Adding a new minor location, or repositioning a major one,
+is a seed-data change, not a template change. There's no player movement
+between locations yet, so beyond The Undercroft (everyone's starting/
+only reachable location), the map is a browsable reference for now —
+travel and the territory-claim flow connecting to it are natural next
+steps.
 
 ## UI architecture
 

@@ -1,29 +1,46 @@
 <div data-panel="map" class="map-layout">
   <div class="map-col-main">
     <section class="panel">
-      <div class="panel-header"><h2>The City</h2></div>
-      <p class="hint">Click a square for details. Bigger squares are major locations; small ones are minor. Your current location is highlighted.</p>
+      <div class="panel-header">
+        <h2>The City</h2>
+        <span class="status-live"><span class="status-live-dot"></span>LIVE MAP</span>
+      </div>
+      <p class="hint">
+        16 sectors, principal locations sized to scale. Territory, events, caravans, and markets
+        will show up here as the world develops. Click a building for details.
+      </p>
 
-      <div class="sector-grid">
-        <% sectors.forEach(function (sector) { %>
-          <div class="sector-box">
-            <span class="sector-label">Sector <%= sector.number %></span>
-            <% if (sector.locations.length === 0) { %>
-              <p class="sector-empty">Unexplored</p>
-            <% } else { %>
-              <div class="sector-locations">
-                <% sector.locations.forEach(function (loc) {
-                     var isHere = loc.id === character.location_id;
-                %>
-                  <div class="location-tile <%= loc.tier === 'major' ? 'location-tile-major' : 'location-tile-minor' %> <%= isHere ? 'location-tile-here' : '' %> <%= loc.controlling_tribe_name ? 'location-tile-claimed' : '' %>"
-                       data-location="<%= loc.key %>" tabindex="0" title="<%= loc.name %>">
-                    <span class="location-tile-name"><%= loc.name %></span>
-                  </div>
-                <% }); %>
-              </div>
+      <div class="city-grid-wrap">
+        <div class="city-grid" style="grid-template-columns: repeat(<%= gridSize %>, var(--grid-tile)); grid-template-rows: repeat(<%= gridSize %>, var(--grid-tile));">
+          <% sectors.forEach(function (sector) { %>
+            <div class="sector-region"
+                 style="grid-row: <%= sector.startRow %> / span <%= sector.rowSpan %>; grid-column: <%= sector.startCol %> / span <%= sector.colSpan %>; background-color: <%= sector.color %>;">
+              <span class="sector-region-label">SECTOR <%= sector.number %></span>
+            </div>
+          <% }); %>
+
+          <% for (var r = 1; r <= gridSize; r++) { %>
+            <% for (var c = 1; c <= gridSize; c++) { %>
+              <div class="floor-tile" style="grid-row: <%= r %>; grid-column: <%= c %>;">&middot;</div>
             <% } %>
-          </div>
-        <% }); %>
+          <% } %>
+
+          <% gridLocations.forEach(function (loc) {
+               var isHere = loc.id === character.location_id;
+          %>
+            <div class="grid-location <%= isHere ? 'grid-location-here' : '' %> <%= loc.controlling_tribe_name ? 'grid-location-claimed' : '' %>"
+                 style="grid-row: <%= loc.grid_row %> / span <%= loc.grid_row_span %>; grid-column: <%= loc.grid_col %> / span <%= loc.grid_col_span %>;"
+                 data-location="<%= loc.key %>" tabindex="0" title="<%= loc.name %>">
+              <span class="grid-location-name"><%= loc.name %></span>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="map-legend">
+        <span><span class="legend-dot legend-dot-here"></span>You are here</span>
+        <span><span class="legend-dot legend-dot-claimed"></span>Tribe-held</span>
+        <span><span class="legend-dot legend-dot-neutral"></span>Unclaimed</span>
       </div>
     </section>
 
@@ -33,7 +50,7 @@
         <% outside.forEach(function (loc) {
              var isHere = loc.id === character.location_id;
         %>
-          <div class="location-tile <%= loc.tier === 'major' ? 'location-tile-major' : 'location-tile-minor' %> <%= isHere ? 'location-tile-here' : '' %> <%= loc.controlling_tribe_name ? 'location-tile-claimed' : '' %>"
+          <div class="location-tile location-tile-major <%= isHere ? 'location-tile-here' : '' %> <%= loc.controlling_tribe_name ? 'location-tile-claimed' : '' %>"
                data-location="<%= loc.key %>" tabindex="0" title="<%= loc.name %>">
             <span class="location-tile-name"><%= loc.name %></span>
           </div>
@@ -41,13 +58,17 @@
       </div>
     </section>
 
-    <div class="map-legend">
-      <span><span class="legend-dot legend-dot-here"></span>You are here</span>
-      <span><span class="legend-dot legend-dot-claimed"></span>Tribe-held</span>
-      <span><span class="legend-dot legend-dot-neutral"></span>Unclaimed</span>
-      <span><span class="legend-swatch legend-swatch-major"></span>Major location</span>
-      <span><span class="legend-swatch legend-swatch-minor"></span>Minor location</span>
-    </div>
+    <section class="panel">
+      <div class="panel-header"><h2>Minor Locations</h2></div>
+      <p class="hint">Smaller sites scattered through the sectors — the rest of the map for territory claiming once it reaches beyond The Undercroft.</p>
+      <div class="minor-chip-list">
+        <% minors.forEach(function (loc) { %>
+          <div class="minor-chip" data-location="<%= loc.key %>" tabindex="0">
+            <%= loc.name %><% if (loc.sector_number) { %> <span class="hint">S<%= loc.sector_number %></span><% } %>
+          </div>
+        <% }); %>
+      </div>
+    </section>
   </div>
 
   <aside class="map-detail-panel">

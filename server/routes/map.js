@@ -4,8 +4,7 @@ const requireAuth = require('../middleware/requireAuth');
 const characters = require('../models/character');
 const territories = require('../models/territory');
 const tribeMemberships = require('../models/tribeMembership');
-
-const SECTOR_COUNT = 16;
+const { GRID_SIZE, SECTORS } = require('../game/cityGrid');
 
 function loadContext(req, res, next) {
   const character = characters.getByUserId(req.session.userId);
@@ -23,19 +22,20 @@ router.use(requireAuth, loadContext);
 
 function buildMapViewModel(character) {
   const locations = territories.listAll();
+  const onGrid = locations.filter((loc) => loc.grid_row !== null);
 
-  const sectors = [];
-  for (let number = 1; number <= SECTOR_COUNT; number += 1) {
-    sectors.push({
-      number,
-      locations: locations.filter((loc) => loc.sector_number === number),
-    });
-  }
+  const sectors = SECTORS.map((sector) => ({
+    ...sector,
+    locations: onGrid.filter((loc) => loc.sector_number === sector.number),
+  }));
 
   return {
     character,
+    gridSize: GRID_SIZE,
     sectors,
-    outside: locations.filter((loc) => loc.sector_number === null),
+    gridLocations: onGrid,
+    outside: locations.filter((loc) => loc.tier === 'major' && loc.sector_number === null),
+    minors: locations.filter((loc) => loc.tier === 'minor'),
     locations,
   };
 }

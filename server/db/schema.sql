@@ -8,12 +8,16 @@ CREATE TABLE IF NOT EXISTS users (
 -- A physical place characters stand in, and the unit tribes claim as
 -- territory. parent_territory_id is reserved so sub-locations can be
 -- added without a breaking migration. controlling_tribe_id is null
--- while unclaimed. sector_number places a territory in the Map tab's
--- city grid (1-16; null means it's shown under "Outside the City"
--- instead of inside a numbered sector). tier distinguishes named,
+-- while unclaimed. sector_number places a territory in one of the Map
+-- tab's 16 city sectors (see server/game/cityGrid.js); null means it's
+-- shown under "Outside the City" instead. tier distinguishes named,
 -- plot-relevant locations ('major') from the many small, mostly
 -- interchangeable ones added purely to give territory claiming
--- somewhere to happen ('minor').
+-- somewhere to happen ('minor'). grid_row/grid_col/grid_row_span/
+-- grid_col_span place a location's footprint on the 25x25 tile grid
+-- (1-indexed, matching CSS grid-row/grid-column) — only set for the
+-- handful of major, in-city locations actually drawn on the grid;
+-- everything else (minors, outside-the-city majors) leaves them null.
 CREATE TABLE IF NOT EXISTS territories (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   key TEXT NOT NULL UNIQUE,
@@ -23,7 +27,11 @@ CREATE TABLE IF NOT EXISTS territories (
   connections TEXT NOT NULL DEFAULT '[]',
   controlling_tribe_id INTEGER REFERENCES tribes(id),
   sector_number INTEGER,
-  tier TEXT NOT NULL DEFAULT 'minor'
+  tier TEXT NOT NULL DEFAULT 'minor',
+  grid_row INTEGER,
+  grid_col INTEGER,
+  grid_row_span INTEGER,
+  grid_col_span INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS skills (
