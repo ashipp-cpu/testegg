@@ -167,6 +167,146 @@ input[type="text"]:focus, textarea:focus {
 }
 .option-card:has(input:checked) .tag { border-color: var(--accent); color: var(--text); }
 
+/* Wizard v2 — character creation (createCharacter.ejs / wizard.js) */
+.wizard2 { max-width: 780px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+
+.wizard-progress { margin-bottom: 2.75rem; }
+.wizard-progress-track { height: 3px; background: var(--border); border-radius: 999px; margin: 0 17px; }
+.wizard-progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.3s ease; }
+.wizard-progress-steps { display: flex; justify-content: space-between; margin-top: -13px; }
+.wizard-progress-step {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--border-strong);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.wizard-progress-step.done { border-color: var(--accent); background: var(--accent); color: #fff; }
+.wizard-progress-step.active { border-color: var(--accent); color: var(--text); box-shadow: 0 0 0 4px var(--accent-soft); }
+
+.wizard-stage { transition: opacity 0.22s ease; }
+.wizard-stage.is-transitioning { opacity: 0; }
+
+.wizard-screen { display: none; }
+.wizard-screen.active { display: block; animation: wizard-fade-up 0.4s ease; }
+@keyframes wizard-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.wizard-error {
+  background: rgba(226, 85, 74, 0.12);
+  border: 1px solid var(--danger);
+  color: #f4b8b2;
+  padding: 0.7em 1em;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.wizard-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1.75rem; gap: 1rem; }
+.wizard-nav-end { justify-content: flex-end; }
+
+.pill-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.pill-btn {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.55em 1.1em;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.pill-btn:hover { border-color: var(--border-strong); color: var(--text); }
+.pill-btn.selected { border-color: var(--accent); background: var(--accent); color: #fff; font-weight: 600; }
+
+/* Background cards */
+.bg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.9rem; }
+.bg-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  text-align: left;
+  font-family: var(--font-body);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--card-color, var(--border));
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+.bg-card:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+.bg-card.selected { border-color: var(--card-color, var(--accent)); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--card-color, var(--accent)); }
+.bg-card-icon { font-size: 1.5rem; line-height: 1; }
+.bg-card-name { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.03em; font-size: 1.02rem; }
+.bg-card-blurb { color: var(--text-muted); font-size: 0.84rem; flex: 1; }
+.bg-card-buff {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  color: var(--card-color, var(--accent));
+  border: 1px solid var(--card-color, var(--accent));
+  padding: 0.2em 0.6em;
+  border-radius: 999px;
+  margin-top: 0.2em;
+}
+
+/* Tribe cards */
+.tribe-grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 0.9rem; }
+.tribe-card2 {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  text-align: left;
+  font-family: var(--font-body);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--card-color, var(--border));
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+.tribe-card2:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+.tribe-card2.selected { border-color: var(--card-color, var(--accent)); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--card-color, var(--accent)); }
+.tribe-card2-name { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.03em; font-size: 1rem; color: var(--card-color, var(--text)); }
+.tribe-card2-blurb { color: var(--text-muted); font-size: 0.82rem; }
+.tribe-card2-buff { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); }
+
+.tribe-detail {
+  margin-top: 1.25rem;
+  background: var(--panel-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.25rem;
+  animation: wizard-fade-up 0.3s ease;
+}
+.tribe-detail h3 { margin: 0 0 0.4em; font-size: 1rem; }
+.tribe-detail p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+
+/* Ready screen */
+.wizard-screen-ready { text-align: center; padding: 2rem 0; }
+.wizard-screen-ready h1 { margin-bottom: 0.5em; }
+.wizard-screen-ready .hint { margin-bottom: 2rem; font-size: 1rem; }
+.btn-lg { font-size: 1.1rem; padding: 1em 2.4em; display: block; margin: 0 auto 1rem; }
+
+@media (max-width: 480px) {
+  .bg-grid, .tribe-grid2 { grid-template-columns: 1fr 1fr; }
+}
+
 /* Game shell — persistent chrome around whichever panel htmx has loaded */
 .game-body { overflow-x: hidden; }
 

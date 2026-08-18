@@ -18,11 +18,34 @@ is a later phase).
 
 Onboarding:
 1. **Callsign** — username-only sign in, no password.
-2. **Character** — name, appearance, origin story, and a background
-   (Student, Scavenger, Brawler, Caretaker, Drifter, Ringleader) that sets
-   starting stats and skill bonuses. No manual point allocation.
-3. **Tribe** — join one of the twelve preset tribes. Nobody founds their
-   own.
+2. **Character creation** — a single fading 4-screen wizard
+   (`createCharacter.ejs` + `public/js/wizard.js`, see "Character
+   creation wizard" below) covering name/gender/description, a
+   background pick (9 choices, up from 6, each with an icon, color, and
+   a cosmetic "buff" tag — Student, Scavenger, Brawler, Caretaker,
+   Drifter, Ringleader, Scout, Farmer, Tinkerer), and a tribe pick (all
+   twelve, each with its own buff tag and an expanding detail panel).
+   Stats and skill bonuses come entirely from the background; there's no
+   manual point allocation.
+
+## Character creation wizard
+
+`/characters/new` is one page with four screens (identity → background →
+tribe → "ready"), only one visible at a time; "Next"/"Back" cross-fade
+between them client-side with no page reload or network call until the
+very last step. Clicking "Let's go" on the ready screen fires the
+existing `POST /characters` and `POST /join-tribe` endpoints back to
+back (both now branch on an `Accept: application/json` header to return
+JSON instead of redirecting, purely for the wizard's fetch calls — a
+plain form POST to either still works exactly as before) and lands on
+`/game`. A validation failure on either call jumps back to the relevant
+screen with an inline error instead of losing the user's progress.
+Backgrounds and tribes both carry a `buff_label` (e.g. "+15% Farming")
+purely for the card display — for backgrounds it restates the dominant
+`skill_bonuses` entry; tribes don't currently grant any mechanical
+bonus, so theirs is flavor only. `/join-tribe` alone still exists as a
+fallback for the edge case of a character that somehow exists without a
+tribe.
 
 ## Run it
 
@@ -42,7 +65,7 @@ elections, vote, and claim territory together.
 ## Profiles
 
 Every character has a public profile at `/profile/:id` (or `/profile` for
-your own) — name, tribe affiliation, appearance/origin text, stats, skills,
+your own) — name, gender, tribe affiliation, description, stats, skills,
 a "Recent Actions" feed, friends/enemies, last login time, and any earned
 achievements. Anyone can view anyone else's profile; character names
 throughout the app (tribe roster, friends/enemies lists) link to it.

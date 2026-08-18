@@ -47,6 +47,7 @@ function seedSkills() {
     ['crafting', 'Crafting', 'Repairing and building from scraps.'],
     ['leadership', 'Leadership', 'Getting others to follow your call.'],
     ['stealth', 'Stealth', 'Moving unseen and unheard.'],
+    ['farming', 'Farming', 'Keeping food growing when nothing else is easy.'],
   ];
 
   const insertAll = db.transaction((rows) => rows.forEach((row) => insert.run(...row)));
@@ -58,46 +59,61 @@ function seedBackgrounds() {
   if (n > 0) return;
 
   const insert = db.prepare(`
-    INSERT INTO backgrounds (key, name, blurb, stat_bonuses, skill_bonuses)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO backgrounds (key, name, blurb, icon, color, buff_label, stat_bonuses, skill_bonuses)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const backgrounds = [
     [
-      'student', 'Student',
+      'student', 'Student', '🎓', '#4f8fe0', '+15% Crafting',
       'Was still in class when the world ended. Reads a room, and a repair manual, equally well.',
       { wits: 2, charm: 1, strength: -1 }, { crafting: 2, diplomacy: 1 },
     ],
     [
-      'scavenger', 'Scavenger',
+      'scavenger', 'Scavenger', '🔍', '#d9a02f', '+15% Scavenging',
       'Grew up finding what other people threw away. Nothing goes to waste.',
       { quickness: 2, wits: 1, charm: -1 }, { scavenging: 2, stealth: 1 },
     ],
     [
-      'brawler', 'Brawler',
+      'brawler', 'Brawler', '🥊', '#e2554a', '+15% Combat',
       'Solved problems with fists long before the virus made it a survival skill.',
       { strength: 2, grit: 1, wits: -1 }, { combat: 2, leadership: 1 },
     ],
     [
-      'caretaker', 'Caretaker',
+      'caretaker', 'Caretaker', '💊', '#e07fa0', '+15% Diplomacy',
       "Minded younger siblings and patched up scrapes. Still can't walk past someone hurting.",
       { charm: 2, grit: 1, strength: -1 }, { diplomacy: 2, crafting: 1 },
     ],
     [
-      'drifter', 'Drifter',
+      'drifter', 'Drifter', '🥾', '#8a8f98', '+15% Stealth',
       'Never really had a home to begin with, so the collapse changed less than people think.',
       { quickness: 2, grit: 1, charm: -1 }, { stealth: 2, scavenging: 1 },
     ],
     [
-      'ringleader', 'Ringleader',
+      'ringleader', 'Ringleader', '🎤', '#a25fd9', '+15% Leadership',
       "The kid everyone somehow ended up following, even before there was anywhere to lead them.",
       { charm: 2, wits: 1, grit: -1 }, { leadership: 2, diplomacy: 1 },
+    ],
+    [
+      'scout', 'Scout', '🧭', '#2fb0a8', '+15% Stealth',
+      'Learned the safest paths through the ruins long before anyone paid for the knowledge. Sees a way through where others see a dead end.',
+      { quickness: 2, wits: 1, strength: -1 }, { stealth: 2, scavenging: 1 },
+    ],
+    [
+      'farmer', 'Farmer', '🌾', '#6fa83a', '+15% Farming',
+      'Kept crops alive through worse than this. Knows dirt, weather, and patience better than most survivors know a gun.',
+      { grit: 2, strength: 1, quickness: -1 }, { farming: 2, crafting: 1 },
+    ],
+    [
+      'tinkerer', 'Tinkerer', '🔧', '#c98f3f', '+15% Crafting',
+      'Never met a broken machine that stayed broken for long. If it still has parts, it still has a use.',
+      { wits: 2, quickness: 1, grit: -1 }, { crafting: 2, scavenging: 1 },
     ],
   ];
 
   const insertAll = db.transaction((rows) => {
-    rows.forEach(([key, name, blurb, statBonuses, skillBonuses]) => {
-      insert.run(key, name, blurb, JSON.stringify(statBonuses), JSON.stringify(skillBonuses));
+    rows.forEach(([key, name, icon, color, buffLabel, blurb, statBonuses, skillBonuses]) => {
+      insert.run(key, name, blurb, icon, color, buffLabel, JSON.stringify(statBonuses), JSON.stringify(skillBonuses));
     });
   });
   insertAll(backgrounds);
@@ -107,20 +123,47 @@ function seedTribes() {
   const { n } = db.prepare('SELECT COUNT(*) AS n FROM tribes').get();
   if (n > 0) return;
 
-  const insert = db.prepare('INSERT INTO tribes (key, name, ideology_text) VALUES (?, ?, ?)');
+  const insert = db.prepare(`
+    INSERT INTO tribes (key, name, ideology_text, detail_text, buff_label, color)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `);
   const tribes = [
-    ['mallrats', 'Mallrats', 'Holed up in the ruins of a shopping mall — more family than faction.'],
-    ['demon-dogz', 'Demon Dogz', 'Loud, chaotic, and proud of the fear they put in people.'],
-    ['roosters', 'Roosters', 'Strutting and status-obsessed, always keeping score.'],
-    ['jackals', 'Jackals', 'Fast and opportunistic, quick to pick a fight they can win.'],
-    ['mutants', 'Mutants', 'Painted faces, no rules, living for the chaos of it.'],
-    ['gulls', 'Gulls', 'Coastal scavengers who trade in whatever washes up.'],
-    ['locos', 'Locos', 'Wild and unpredictable, feared for how little they have to lose.'],
-    ['farm-girls', 'Farm Girls', 'Self-sufficient growers who trust dirt more than people.'],
-    ['amazons', 'Amazons', 'A tribe of girls only — sharp-eyed and slow to trust outsiders.'],
-    ['slave-traders', 'Slave Traders', 'Buy and sell labour, loyalty, and information, for a price.'],
-    ['tribe-circus', 'Tribe Circus', 'Performers and misfits who talk their way through anything.'],
-    ['ecos', 'Ecos', "Believers in living light on the land and healing what's left of it."],
+    ['mallrats', 'Mallrats', 'Holed up in the ruins of a shopping mall — more family than faction.',
+      "What started as a handful of kids squatting in a gutted shopping centre turned into the closest thing this city has to a neutral home base. Mallrats don't pick fights they can avoid, and they're usually the ones in the room when two other tribes need someone to talk them down.",
+      '+15% Diplomacy', '#d9602f'],
+    ['demon-dogz', 'Demon Dogz', 'Loud, chaotic, and proud of the fear they put in people.',
+      "The Demon Dogz didn't survive the collapse by being reasonable. They took the casino because nobody else was willing to fight hard enough to keep it, and they've been daring someone to try taking it back ever since.",
+      '+15% Combat', '#e2554a'],
+    ['roosters', 'Roosters', 'Strutting and status-obsessed, always keeping score.',
+      "Everything is a competition to the Roosters — who's got the best gear, the sharpest look, the biggest reputation. It's vanity until you realise how good they've gotten at actually backing it up.",
+      '+10% Leadership', '#e0b23f'],
+    ['jackals', 'Jackals', 'Fast and opportunistic, quick to pick a fight they can win.',
+      "Jackals don't hold ground, they take opportunities — a supply run left unguarded, a rival tribe stretched too thin. Fast in, fast out, gone before anyone's sure what happened.",
+      '+15% Stealth', '#9aa0ab'],
+    ['mutants', 'Mutants', 'Painted faces, no rules, living for the chaos of it.',
+      "No leader, no rules, no plan beyond the next hour — and somehow that's kept the Mutants alive longer than tribes with all three. Painted faces, borrowed scrap armor, and absolutely nothing left to lose.",
+      '+10% Combat', '#b05fd9'],
+    ['gulls', 'Gulls', 'Coastal scavengers who trade in whatever washes up.',
+      'Whatever the tide brings in, the Gulls get first look at it. Running the docks means running the closest thing this city has to an open market, and they intend to keep it that way.',
+      '+15% Scavenging', '#4f8fe0'],
+    ['locos', 'Locos', 'Wild and unpredictable, feared for how little they have to lose.',
+      "The Locos run the rail yards like it's already a warzone, because to them it might as well be. Nobody's ever sure what sets them off, which is exactly how they like it.",
+      '+15% Combat', '#c9432f'],
+    ['farm-girls', 'Farm Girls', 'Self-sufficient growers who trust dirt more than people.',
+      "The Farm keeps this city fed, or the parts of it that bother to trade fairly. Farm Girls would rather be left alone to work the fields than get pulled into anyone else's fight — but they've made it clear they can end one if they have to.",
+      '+15% Farming', '#6fa83a'],
+    ['amazons', 'Amazons', 'A tribe of girls only — sharp-eyed and slow to trust outsiders.',
+      "The Amazons don't explain themselves and don't recruit outsiders looking for family — they recruit outsiders looking for a reason to trust their own instincts again. Sharp-eyed, close-knit, and not worth underestimating.",
+      '+10% Stealth', '#e07fae'],
+    ['slave-traders', 'Slave Traders', 'Buy and sell labour, loyalty, and information, for a price.',
+      "Everything has a price to the Slave Traders — labour, loyalty, information, people. It's the kind of tribe most others claim to hate and quietly do business with anyway.",
+      '+10% Diplomacy', '#a08060'],
+    ['tribe-circus', 'Tribe Circus', 'Performers and misfits who talk their way through anything.',
+      "Half performance troupe, half information network, the Circus talks its way into rooms other tribes would need to fight their way into. Nobody's quite sure where the act ends and the tribe begins.",
+      '+15% Diplomacy', '#2fb0a8'],
+    ['ecos', 'Ecos', "Believers in living light on the land and healing what's left of it.",
+      "The Ecos think the collapse was the planet correcting a mistake, and they intend to make sure it's not repeated. Camped in the treeline outside the city, equal parts survivalists and true believers.",
+      '+10% Crafting', '#3f9d6a'],
   ];
 
   const insertAll = db.transaction((rows) => rows.forEach((row) => insert.run(...row)));

@@ -43,12 +43,18 @@ CREATE TABLE IF NOT EXISTS skills (
 
 -- A background is a starting archetype (Student, Scavenger, Brawler...).
 -- Bonuses are stored as JSON deltas rather than fixed columns so new
--- backgrounds or bonus types don't require a schema change.
+-- backgrounds or bonus types don't require a schema change. icon/color/
+-- buff_label are purely cosmetic (character creation card display);
+-- buff_label restates the dominant skill_bonuses entry as a short tag
+-- rather than being mechanically authoritative itself.
 CREATE TABLE IF NOT EXISTS backgrounds (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   key TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   blurb TEXT NOT NULL,
+  icon TEXT NOT NULL DEFAULT '',
+  color TEXT NOT NULL DEFAULT '',
+  buff_label TEXT NOT NULL DEFAULT '',
   stat_bonuses TEXT NOT NULL DEFAULT '{}',
   skill_bonuses TEXT NOT NULL DEFAULT '{}'
 );
@@ -59,8 +65,8 @@ CREATE TABLE IF NOT EXISTS characters (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL UNIQUE REFERENCES users(id),
   name TEXT NOT NULL,
-  appearance_text TEXT NOT NULL,
-  origin_story TEXT NOT NULL,
+  gender TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL,
   background_id INTEGER NOT NULL REFERENCES backgrounds(id),
   stat_strength INTEGER NOT NULL,
   stat_quickness INTEGER NOT NULL,
@@ -81,12 +87,18 @@ CREATE TABLE IF NOT EXISTS character_skills (
 );
 
 -- The fixed roster of joinable tribes — characters join one, they can't
--- found their own.
+-- found their own. ideology_text is the short card blurb; detail_text is
+-- the longer read shown once a tribe is picked on the character creation
+-- screen. buff_label/color are cosmetic, same caveat as backgrounds.buff_label
+-- above — tribes don't currently grant any mechanical bonus.
 CREATE TABLE IF NOT EXISTS tribes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   key TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   ideology_text TEXT NOT NULL,
+  detail_text TEXT NOT NULL DEFAULT '',
+  buff_label TEXT NOT NULL DEFAULT '',
+  color TEXT NOT NULL DEFAULT '',
   policy_text TEXT NOT NULL DEFAULT ''
 );
 

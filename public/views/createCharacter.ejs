@@ -1,61 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head><%- include('partials/head', { title: 'New Character' }) %></head>
-<body>
-  <main class="wizard">
-    <div class="step-indicator">
-      <span class="step done">1 &middot; Callsign</span>
-      <span class="step current">2 &middot; Character</span>
-      <span class="step">3 &middot; Tribe</span>
+<body class="wizard-page">
+  <main class="wizard2">
+    <div class="wizard-progress">
+      <div class="wizard-progress-track"><div class="wizard-progress-fill" data-progress-fill></div></div>
+      <div class="wizard-progress-steps">
+        <span class="wizard-progress-step active" data-step-dot>1</span>
+        <span class="wizard-progress-step" data-step-dot>2</span>
+        <span class="wizard-progress-step" data-step-dot>3</span>
+        <span class="wizard-progress-step" data-step-dot>4</span>
+      </div>
     </div>
 
-    <h1>Who were you, before?</h1>
-    <% if (error) { %><p class="form-error"><%= error %></p><% } %>
+    <div class="wizard-stage" data-wizard-stage>
+      <p class="wizard-error" data-wizard-error hidden></p>
 
-    <form method="POST" action="/characters" class="stack">
-      <div class="field">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" value="<%= form.name %>" maxlength="30" required
-               placeholder="What do people call you?">
-      </div>
+      <section class="wizard-screen active" data-screen="0">
+        <p class="eyebrow">Step 1 of 4</p>
+        <h1>Who were you, before?</h1>
+        <p class="hint">The world ended. Tell us who's left.</p>
 
-      <div class="field">
-        <label for="appearance_text">Appearance</label>
-        <textarea id="appearance_text" name="appearance_text" rows="2" required
-                  placeholder="How do you look, move, dress?"><%= form.appearance_text %></textarea>
-      </div>
+        <div class="field">
+          <label for="w-name">Name</label>
+          <input type="text" id="w-name" maxlength="30" placeholder="What do people call you?" data-field="name" autofocus>
+        </div>
 
-      <div class="field">
-        <label for="origin_story">Where did you come from?</label>
-        <textarea id="origin_story" name="origin_story" rows="3" required
-                  placeholder="How did you survive this long?"><%= form.origin_story %></textarea>
-      </div>
+        <div class="field">
+          <label>Gender</label>
+          <div class="pill-group" data-field-group="gender">
+            <button type="button" class="pill-btn" data-value="male">Male</button>
+            <button type="button" class="pill-btn" data-value="female">Female</button>
+            <button type="button" class="pill-btn" data-value="nonbinary">Non-binary</button>
+            <button type="button" class="pill-btn" data-value="other">Other</button>
+          </div>
+        </div>
 
-      <fieldset class="field">
-        <legend>Background</legend>
+        <div class="field">
+          <label for="w-description">Brief description</label>
+          <textarea id="w-description" rows="3" placeholder="How do you look? How did you survive this long?" data-field="description"></textarea>
+        </div>
+
+        <div class="wizard-nav wizard-nav-end">
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+        </div>
+      </section>
+
+      <section class="wizard-screen" data-screen="1">
+        <p class="eyebrow">Step 2 of 4</p>
+        <h1>Choose your background</h1>
         <p class="hint">This shapes your starting stats and skills.</p>
-        <div class="card-grid">
-          <% backgrounds.forEach(function(bg) {
-               var skillBonuses = JSON.parse(bg.skill_bonuses);
-               var skillKeys = Object.keys(skillBonuses);
-          %>
-            <label class="option-card">
-              <input type="radio" name="background_key" value="<%= bg.key %>"
-                     <%= form.background_key === bg.key ? 'checked' : '' %> required>
-              <span class="option-card-title"><%= bg.name %></span>
-              <span class="option-card-body"><%= bg.blurb %></span>
-              <span class="option-card-tags">
-                <% skillKeys.forEach(function(key) { %>
-                  <span class="tag">+<%= skillBonuses[key] %> <%= key.charAt(0).toUpperCase() + key.slice(1) %></span>
-                <% }); %>
-              </span>
-            </label>
+
+        <div class="bg-grid" data-field-group="background_key">
+          <% backgrounds.forEach(function (bg) { %>
+            <button type="button" class="bg-card" data-value="<%= bg.key %>" style="--card-color: <%= bg.color %>;">
+              <span class="bg-card-icon"><%= bg.icon %></span>
+              <span class="bg-card-name"><%= bg.name %></span>
+              <span class="bg-card-blurb"><%= bg.blurb %></span>
+              <span class="bg-card-buff"><%= bg.buff_label %></span>
+            </button>
           <% }); %>
         </div>
-      </fieldset>
 
-      <button type="submit" class="btn btn-primary btn-block">Continue</button>
-    </form>
+        <div class="wizard-nav">
+          <button type="button" class="btn btn-ghost" data-back>Back</button>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+        </div>
+      </section>
+
+      <section class="wizard-screen" data-screen="2">
+        <p class="eyebrow">Step 3 of 4</p>
+        <h1>Who do you run with?</h1>
+        <p class="hint">Pick a tribe to join. Nobody founds their own — everyone starts somewhere.</p>
+
+        <div class="tribe-grid2" data-field-group="tribe_key">
+          <% tribes.forEach(function (tribe) { %>
+            <button type="button" class="tribe-card2" data-value="<%= tribe.key %>" data-name="<%= tribe.name %>"
+                    data-detail="<%= tribe.detail_text %>" style="--card-color: <%= tribe.color %>;">
+              <span class="tribe-card2-name"><%= tribe.name %></span>
+              <span class="tribe-card2-blurb"><%= tribe.ideology_text %></span>
+              <span class="tribe-card2-buff"><%= tribe.buff_label %></span>
+            </button>
+          <% }); %>
+        </div>
+
+        <div class="tribe-detail" data-tribe-detail hidden>
+          <h3 data-tribe-detail-name></h3>
+          <p data-tribe-detail-text></p>
+        </div>
+
+        <div class="wizard-nav">
+          <button type="button" class="btn btn-ghost" data-back>Back</button>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+        </div>
+      </section>
+
+      <section class="wizard-screen wizard-screen-ready" data-screen="3">
+        <p class="eyebrow">Step 4 of 4</p>
+        <h1>Are you ready to enter the City?</h1>
+        <p class="hint" data-ready-summary></p>
+        <button type="button" class="btn btn-primary btn-lg" data-submit>Let's go</button>
+        <button type="button" class="btn btn-ghost btn-small" data-back>Back</button>
+      </section>
+    </div>
   </main>
+
+  <script src="/js/wizard.js"></script>
 </body>
 </html>

@@ -1,10 +1,11 @@
 <div data-panel="profile" class="tribe-grid-layout">
   <div class="tribe-col-main">
 
+    <% var genderLabels = { male: 'Male', female: 'Female', nonbinary: 'Non-binary', other: 'Other' }; %>
     <header class="tribe-header">
       <h1><%= profileCharacter.name %></h1>
       <p class="tagline">
-        <%= background.name %><% if (profileMembership) { %> &middot; <%= profileMembership.tribe_name %><% } %>
+        <% if (profileCharacter.gender) { %><%= genderLabels[profileCharacter.gender] || profileCharacter.gender %> &middot; <% } %><%= background.name %><% if (profileMembership) { %> &middot; <%= profileMembership.tribe_name %><% } %>
       </p>
       <p class="hint">
         Last seen <%= profileUser.last_login_at ? (profileUser.last_login_at + ' UTC') : 'never' %>
@@ -39,8 +40,7 @@
 
     <section class="panel">
       <div class="panel-header"><h2>About</h2></div>
-      <p class="appearance"><%= profileCharacter.appearance_text %></p>
-      <p><%= profileCharacter.origin_story %></p>
+      <p class="appearance"><%= profileCharacter.description %></p>
     </section>
 
     <section class="panel">
